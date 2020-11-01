@@ -1,6 +1,8 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Media.Devices;
 using Windows.Security.Cryptography;
 using Windows.Storage.Streams;
 
@@ -76,5 +78,80 @@ namespace GallonHelpers
     public enum LogType
     {
         ERROR, WARNING, OK, PENDING
+    }
+
+    /// <summary>
+    /// Created by Lilian Gallon, 11/01/2020
+    /// 
+    /// Used to get the volume of the current sound played by windows.
+    /// It gets updated automatically to ALWAYS listen to the default
+    /// output device.
+    /// </summary>
+    public class SoundListener
+    {
+        private WasapiLoopbackCapture capture;
+        private float soundLevel;
+
+        public SoundListener()
+        {
+            soundLevel = 0;
+            InitCapture();
+
+            MediaDevice.DefaultAudioRenderDeviceChanged += (sender, newDevice) =>
+            {
+                Dispose();
+                InitCapture();
+            };
+        }
+
+        ~SoundListener()
+        {
+            Dispose();
+        }
+
+        /// <summary>
+        /// Inits the capture:
+        /// - inits the capture to listen to the current default output device
+        /// - creates the listener
+        /// - starts recording
+        /// </summary>
+        private void InitCapture()
+        {
+            // Takes the current default output device
+            capture = new WasapiLoopbackCapture();
+
+            capture.DataAvailable += (object sender, WaveInEventArgs args) =>
+            {
+                // Interprets the sample as 32 bit floating point audio (-> FloatBuffer)
+                soundLevel = 0;
+                var buffer = new WaveBuffer(args.Buffer);
+
+                for (int index = 0; index < args.BytesRecorded / 4; index++)
+                {
+                    var sample = buffer.FloatBuffer[index];
+                    if (sample < 0) sample = -sample; // abs
+                    if (sample > soundLevel) soundLevel = sample;
+                }
+            };
+
+            capture.StartRecording();
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns>The current sound level between 0.0f and 1.0f</returns>
+        public float GetSoundLevel()
+        {
+            return soundLevel;
+        }
+
+        /// <summary>
+        /// Clears the allocated resources
+        /// </summary>
+        public void Dispose()
+        {
+            capture?.StopRecording();
+            capture?.Dispose();
+        }
     }
 }
