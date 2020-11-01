@@ -1,18 +1,24 @@
 # BLE-Controller
-Change the brightness of LEDs using Bluetooth LE according to the music played on your computer.
 
-**Works with Windows 10 > build 10240**
+Ledstrips are alive! The color and brightness change according to the activity of your computer.
+
+Playing Doom? The LEDs will flash and turn red when killing monsters. Watching a movie? The LEDs color will change according to the scene you're looking at and will flash according to the audio.
+
+*Should be cross-compatible (Windows, Linux, MacOS) at least, that's what the Windows doc says.*
 
 ## Goals:
 
 - [x] Change intensity of the light according to the sound played by the default output device
 - [x] Change the LEDs color according to the screen main color
 - [ ] Ask for the user to select the device, the service, and the characteristic
-- [ ] Allow the user to save that by giving them command line arguments to run the program
+- [ ] Allow the user to save that by giving them command line arguments to run the program - V 1.0.0 goal
 - [ ] Allow the user to start this app in the foreground on windows startup
 - [ ] Cool UWP UI
+- [ ] Automatic configuration (make it work on any Bluetooth LE LED controller) - yes, it's possible
 
 ## For the devs:
+
+**Works with Windows 10 > build 10240**
 
 **Project setup:**
 - Open .sln file with Visual Studio.
