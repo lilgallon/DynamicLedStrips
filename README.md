@@ -1,6 +1,6 @@
-# BLE-Controller
+# Dynamic LED Strips
 
-Ledstrips are alive! The color and brightness change according to the activity of your computer.
+LED strips are alive! The color and brightness change according to the activity of your computer.
 
 Playing Doom? The LEDs will flash and turn red when killing monsters. Watching a movie? The LEDs color will change according to the scene you're looking at and will flash according to the audio.
 
