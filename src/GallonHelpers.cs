@@ -117,8 +117,6 @@ namespace GallonHelpers
         private float soundLevel = 0;
 
         /// <summary>
-        /// Created by Lilian Gallon, 11/01/2020
-        /// 
         /// It initializes everything. You can call GetSoundLevel() right after
         /// instanciating this class.
         /// </summary>
@@ -167,8 +165,7 @@ namespace GallonHelpers
         }
 
         /// <summary>
-        /// Created by Lilian Gallon, 11/01/2020
-        /// 
+        /// The audio is taken from the default output device
         /// </summary>
         /// <returns>The current system sound level between 0.0f and 1.0f</returns>
         public float GetSoundLevel()
