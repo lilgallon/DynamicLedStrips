@@ -7,7 +7,7 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using System.Threading;
-using Microsoft.VisualBasic.CompilerServices;
+using System.Drawing;
 
 namespace AudioBleLedsController
 {
@@ -165,6 +165,12 @@ namespace AudioBleLedsController
 
                     Utility.Log("Program running. Press CTRL+C to stop", LogType.OK);
 
+                    // Rectangle in the middle of the screen
+                    Rectangle rect = new Rectangle(1920/4, 1080/4, 1920 / 4 * 2, 1080 / 4 * 2);
+                    String colorCode = "";
+                    Color color;
+
+                    int cpt = 0;
                     while (keepRunning)
                     {
                         float soundLevel = soundListener.GetSoundLevel(); // Between 0.0f and 1.0f
@@ -177,6 +183,55 @@ namespace AudioBleLedsController
                         String textToWrite = "7e0001" + brightness + "00000000ef";
                         Utility.WriteHex(textToWrite, characteristic); // result ignored yes, we don't want for it to be blocking
 
+                        // We don't want to analyze pixels as fast as we check for the sound level
+                        cpt++;
+                        if (cpt == 5)
+                        {
+                            new Thread(async () =>
+                            {
+                                color = Utility.CalculateAverageColor(Utility.CaptureFromScreen(rect));
+                                if (color.GetBrightness() >= 0.85f)
+                                {
+                                    // white
+                                    colorCode = "86";
+                                }
+                                else if (color.GetHue() < 25 || color.GetHue() >= 330)
+                                {
+                                    // red
+                                    colorCode = "80";
+                                } 
+                                else if (color.GetHue() >= 25 && color.GetHue() < 65)
+                                {
+                                    // yellow
+                                    colorCode = "84";
+                                }
+                                else if (color.GetHue() >= 65 && color.GetHue() < 180)
+                                {
+                                    // green
+                                    colorCode = "82";
+                                }
+                                else if (color.GetHue() >= 180 && color.GetHue() < 200)
+                                {
+                                    // cyan
+                                    colorCode = "83";
+                                }
+                                else if (color.GetHue() >= 200 && color.GetHue() < 250)
+                                {
+                                    // blue
+                                    colorCode = "81";
+                                }
+                                else if (color.GetHue() >= 250 && color.GetHue() < 330)
+                                {
+                                    // magenta
+                                    colorCode = "85";
+                                }
+
+                                Utility.WriteHex("7e0003" + colorCode + "03000000ef", characteristic);
+                            }).Start();
+
+                            cpt = 0;
+                        }
+                        
                         Thread.Sleep(100);
                     }
 

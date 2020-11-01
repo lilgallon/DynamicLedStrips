@@ -7,6 +7,11 @@ using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 
+
+/// <summary>
+/// Taken from https://docs.microsoft.com/samples/microsoft/windows-universal-samples/bluetoothle/
+/// License: MIT License
+/// </summary>
 namespace MSFTHelpers
 {
     /// <summary>
