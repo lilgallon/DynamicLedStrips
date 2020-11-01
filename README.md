@@ -1,5 +1,7 @@
 # BLE-Controller
-Change the brightness of LEDs using Bluetooth LE according to the music played on your computer
+Change the brightness of LEDs using Bluetooth LE according to the music played on your computer.
+
+**Works with Windows 10 > build 10240**
 
 ## Goals:
 
