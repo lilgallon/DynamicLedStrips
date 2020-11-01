@@ -1,6 +1,14 @@
 # BLE-Controller
 Change the brightness of LEDs using Bluetooth LE according to the music played on your computer
 
+## Goals:
+
+- [ ] Change intensity of the light according to the sound played by the default output device
+- [ ] Ask for the user to select the device, the service, and the characteristic
+- [ ] Allow the user to save that by giving them command line arguments to run the program
+- [ ] Allow the user to start this app in the foreground on windows startup
+- [ ] Cool UWP UI
+
 ## For the devs:
 
 **Project setup:**
