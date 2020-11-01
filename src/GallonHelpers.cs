@@ -4,7 +4,7 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Security.Cryptography;
 using Windows.Storage.Streams;
 
-namespace GallonUtility
+namespace GallonHelpers
 {
     public static class Utility
     {

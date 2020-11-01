@@ -1,12 +1,11 @@
 ﻿using MSFTHelpers;
-using GallonUtility;
+using GallonHelpers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
-using Windows.Security.Cryptography;
 
 namespace AudioBleLedsController
 {
