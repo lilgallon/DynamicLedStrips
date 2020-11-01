@@ -5,7 +5,8 @@ Change the brightness of LEDs using Bluetooth LE according to the music played o
 
 ## Goals:
 
-- [ ] Change intensity of the light according to the sound played by the default output device
+- [x] Change intensity of the light according to the sound played by the default output device
+- [ ] Change the LEDs color according to the screen main color
 - [ ] Ask for the user to select the device, the service, and the characteristic
 - [ ] Allow the user to save that by giving them command line arguments to run the program
 - [ ] Allow the user to start this app in the foreground on windows startup
@@ -15,7 +16,10 @@ Change the brightness of LEDs using Bluetooth LE according to the music played o
 
 **Project setup:**
 - Open .sln file with Visual Studio.
+
+If, for some reason, VS does not downlaod the required packages, then:
 - Right click on the project name > manage NuGet packages > Install Microsoft.Windows.SDK.Contracts (to use the Bluetooth LE SDK)
+- Right click on the project name > manage NuGet packages > Install NAudio (to listen get the system sound level)
 
 **How to find your targetted device id:**
 - Download and use the open source [Microsoft BLE Explorer](https://www.microsoft.com/en-us/p/bluetooth-le-explorer/9n0ztkf1qd98?activetab=pivot:overviewtab)

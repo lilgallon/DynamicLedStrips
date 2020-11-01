@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
+using System.Threading;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace AudioBleLedsController
 {
@@ -153,8 +155,26 @@ namespace AudioBleLedsController
                 {
                     Utility.Log("Correct properties!", LogType.OK);
 
-                    String textToWrite = "7e00038703000000ef"; // jump rgb
-                    bool writeSuccessful = await Utility.WriteHex(textToWrite, characteristic);
+                    SoundListener soundListener = new SoundListener();
+
+                    var i = 0;
+                    while (i < 1000)
+                    {
+                        float soundLevel = soundListener.GetSoundLevel(); // Between 0.0f and 1.0f
+
+                        // Format: 7e 00 01 brightness 00 00 00 00 ef
+                        // brightness: 0x00-0x64 (0-100)
+                        // So we need to convert the soundLevel to hex so that 1.0f is 0x64 and 0.0f is 0x00
+                        // First we multiply it by 100, round it, and then convert it to hex
+                        String brightness = ((int) (soundLevel * 100f)).ToString("X");
+                        String textToWrite = "7e0001" + brightness + "00000000ef";
+                        Utility.WriteHex(textToWrite, characteristic); // result ignored yes, we don't want for it to be blocking
+
+                        Thread.Sleep(50);
+                        i++;
+                    }
+
+                    soundListener.Dispose();
                 }
                 else
                 {

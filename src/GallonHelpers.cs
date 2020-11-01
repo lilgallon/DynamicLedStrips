@@ -53,7 +53,7 @@ namespace GallonHelpers
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {
-                    Log("Successfully wrote value to device", LogType.OK);
+                    //Log("Successfully wrote value to device", LogType.OK);
                     return true;
                 }
                 else
@@ -83,18 +83,17 @@ namespace GallonHelpers
     /// <summary>
     /// Created by Lilian Gallon, 11/01/2020
     /// 
-    /// Used to get the volume of the current sound played by windows.
+    /// Used to get the sound level of the operating system.
     /// It gets updated automatically to ALWAYS listen to the default
     /// output device.
     /// </summary>
     public class SoundListener
     {
         private WasapiLoopbackCapture capture;
-        private float soundLevel;
+        private float soundLevel = 0;
 
         public SoundListener()
         {
-            soundLevel = 0;
             InitCapture();
 
             MediaDevice.DefaultAudioRenderDeviceChanged += (sender, newDevice) =>
