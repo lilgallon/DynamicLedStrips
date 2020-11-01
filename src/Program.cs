@@ -13,6 +13,7 @@ namespace AudioBleLedsController
 {
     class Program
     {
+        static volatile bool keepRunning = true;
         static BluetoothLEDevice bluetoothLeDevice = null;
 
         static void Main(string[] args)
@@ -157,8 +158,14 @@ namespace AudioBleLedsController
 
                     SoundListener soundListener = new SoundListener();
 
-                    var i = 0;
-                    while (i < 1000)
+                    Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e) {
+                        e.Cancel = true;
+                        keepRunning = false;
+                    };
+
+                    Utility.Log("Program running. Press CTRL+C to stop", LogType.OK);
+
+                    while (keepRunning)
                     {
                         float soundLevel = soundListener.GetSoundLevel(); // Between 0.0f and 1.0f
 
@@ -170,8 +177,7 @@ namespace AudioBleLedsController
                         String textToWrite = "7e0001" + brightness + "00000000ef";
                         Utility.WriteHex(textToWrite, characteristic); // result ignored yes, we don't want for it to be blocking
 
-                        Thread.Sleep(50);
-                        i++;
+                        Thread.Sleep(100);
                     }
 
                     soundListener.Dispose();
