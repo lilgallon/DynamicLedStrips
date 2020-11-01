@@ -16,10 +16,18 @@ namespace GallonHelpers
         readonly static int E_ACCESSDENIED = unchecked((int)0x80070005);
         #endregion
 
-        public static void Log(String msg, LogType logLevel)
+        /// <summary>
+        /// Created by Lilian Gallon, 11/01/2020
+        /// 
+        /// Simple Log function that adds a prefix according to the log type
+        /// </summary>
+        /// <param name="msg">The message to log</param>
+        /// <param name="logLevel">The type of the message</param>
+
+        public static void Log(String msg, LogType logType)
         {
             String prefix = "";
-            switch (logLevel)
+            switch (logType)
             {
                 case LogType.OK:
                     prefix = "+";
@@ -38,22 +46,37 @@ namespace GallonHelpers
             Console.WriteLine("[" + prefix + "] " + msg);
         }
 
-
+        /// <summary>
+        /// Created by Lilian Gallon, 11/01/2020
+        /// 
+        /// It writes the given hexadecimal value to the given gatt charateristic
+        /// 
+        /// </summary>
+        /// <param name="hex">The hex message to write</param>
+        /// <param name="characteristic">The characteristic to override</param>
+        /// <returns></returns>
         public async static Task<bool> WriteHex(String hex, GattCharacteristic characteristic)
         {
-            return await WriteBufferToSelectedCharacteristicAsync(characteristic, CryptographicBuffer.DecodeFromHexString(hex));
+            return await WriteBufferToSelectedCharacteristicAsync(CryptographicBuffer.DecodeFromHexString(hex), characteristic);
         }
 
-        private async static Task<bool> WriteBufferToSelectedCharacteristicAsync(GattCharacteristic characteristic, IBuffer buffer)
+        /// <summary>
+        /// Created by Lilian Gallon, 11/01/2020
+        /// 
+        /// It writes the given buffer to the given gatt charateristic
+        /// 
+        /// </summary>
+        /// <param name="buffer">The hex message to write</param>
+        /// <param name="characteristic">The characteristic to override</param>
+        /// <returns></returns>
+        private async static Task<bool> WriteBufferToSelectedCharacteristicAsync(IBuffer buffer, GattCharacteristic characteristic)
         {
             try
             {
-                // BT_Code: Writes the value from the buffer to the characteristic.
                 var result = await characteristic.WriteValueWithResultAsync(buffer);
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {
-                    //Log("Successfully wrote value to device", LogType.OK);
                     return true;
                 }
                 else
@@ -75,6 +98,7 @@ namespace GallonHelpers
             }
         }
     }
+
     public enum LogType
     {
         ERROR, WARNING, OK, PENDING
@@ -92,6 +116,12 @@ namespace GallonHelpers
         private WasapiLoopbackCapture capture;
         private float soundLevel = 0;
 
+        /// <summary>
+        /// Created by Lilian Gallon, 11/01/2020
+        /// 
+        /// It initializes everything. You can call GetSoundLevel() right after
+        /// instanciating this class.
+        /// </summary>
         public SoundListener()
         {
             InitCapture();
@@ -137,8 +167,10 @@ namespace GallonHelpers
         }
 
         /// <summary>
+        /// Created by Lilian Gallon, 11/01/2020
+        /// 
         /// </summary>
-        /// <returns>The current sound level between 0.0f and 1.0f</returns>
+        /// <returns>The current system sound level between 0.0f and 1.0f</returns>
         public float GetSoundLevel()
         {
             return soundLevel;
