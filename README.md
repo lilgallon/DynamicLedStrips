@@ -1,16 +1,49 @@
-# Dynamic LED Strips
+```txt
+______  _      _____
+|  _  \| |    /  ___|
+| | | || |    \ `--.
+| | | || |     `--. \  Dynamic LED Strips
+| |/ / | |____/\__/ /  Version 0.1.0
+|___/  \_____/\____/   MIT License, (c) Lilian Gallon 2020
 
-LED strips are alive! The color and brightness change according to the activity of your computer.
+/***
+  LED strips are alive! The color and the brightness change according to the activity of
+    your computer!
 
-Playing Doom? The LEDs will flash and turn red when killing monsters. Watching a movie? The LEDs color will change according to the scene you're looking at and will flash according to the audio.
+  Playing Doom? The LEDs will flash and turn red when killing monsters.
+  Watching a movie? The LEDs color will change according to the scene you're looking at and
+    will flash according to the audio.
+**/
 
-*Should be cross-compatible (Windows, Linux, MacOS) at least, that's what the Windows doc says.*
+/// Lightweight 
+  ./ Low processor usage
+  ./ Low ram usage (<30 MB)
+  ./ Refresh rate customizable (WIP)
+  ./ Area used by color picker customizable (WIP)
+
+/// Smart
+  ./ Finds bluetooth controllers automatically (WIP)
+
+/// Customizable 
+  ./ Toggle features on and off (brightness / color) (WIP)
+  ./ Audio sensibility customizable (WIP)
+  
+/// Works with most of the controllers
+  ./ Supports "LED BLE" controllers (ELK_BLEDOM)
+
+/// Cross compatible
+  ./ Windows 10
+  ./ MacOS
+  ./ Linux
+```
 
 ## Goals:
 
 - [x] Change intensity of the light according to the sound played by the default output device
 - [x] Change the LEDs color according to the screen main color
 - [ ] Ask for the user to select the device, the service, and the characteristic
+- [ ] Allow the user to change the sound level sensibility
+- [ ] Allow the user to 
 - [ ] Allow the user to save that by giving them command line arguments to run the program - V 1.0.0 goal
 - [ ] Allow the user to start this app in the foreground on windows startup
 - [ ] Cool UWP UI
