@@ -23,6 +23,8 @@ namespace AudioBleLedsController
 
         static async Task Run(string[] args)
         {
+            PrintHeader();
+
             Console.WriteLine("Connection");
             Console.WriteLine("-");
 
@@ -262,6 +264,17 @@ namespace AudioBleLedsController
             Console.ReadKey(true);
 
             #endregion
+        }
+
+        static void PrintHeader()
+        {
+            Console.WriteLine("______  _      _____ ");
+            Console.WriteLine("|  _  \\| |    /  ___|");
+            Console.WriteLine("| | | || |    \\ `--. ");
+            Console.WriteLine("| | | || |     `--. \\  Dynamic LED Strips");
+            Console.WriteLine("| |/ / | |____/\\__/ /  Version 0.1.0");
+            Console.WriteLine("|___/  \\_____/\\____/   MIT License, (c) Lilian Gallon 2020");
+            Console.WriteLine("");
         }
     }
 }
