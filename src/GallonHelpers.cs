@@ -103,6 +103,9 @@ namespace GallonHelpers
         /// Created by Lilian Gallon, 11/01/2020
         /// 
         /// Taken and modified from https://stackoverflow.com/questions/22904069/c-sharp-how-to-get-pixel-color-data-from-the-screen
+        /// 
+        /// !! YOU NEED TO DISPOSE THE RETURNED BITMAP TO PREVENT MEMORY LEAKS !!
+        /// 
         /// </summary>
         /// <param name="rect">Rectangle that defines the screenshot</param>
         /// <returns>A bitmap containing the image data</returns>
@@ -119,7 +122,6 @@ namespace GallonHelpers
             bmpScreenCapture = new Bitmap(rect.Width, rect.Height);
 
             Graphics p = Graphics.FromImage(bmpScreenCapture);
-
 
             p.CopyFromScreen(rect.X,
                      rect.Y,

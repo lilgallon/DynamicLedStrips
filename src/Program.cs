@@ -169,18 +169,21 @@ namespace AudioBleLedsController
                     Rectangle rect = new Rectangle(1920/4, 1080/4, 1920 / 4 * 2, 1080 / 4 * 2);
                     String colorCode = "";
                     Color color;
+                    float soundLevel;
+                    String brightness;
+                    String textToWrite;
 
                     int cpt = 0;
                     while (keepRunning)
                     {
-                        float soundLevel = soundListener.GetSoundLevel(); // Between 0.0f and 1.0f
+                        soundLevel = soundListener.GetSoundLevel(); // Between 0.0f and 1.0f
 
                         // Format: 7e 00 01 brightness 00 00 00 00 ef
                         // brightness: 0x00-0x64 (0-100)
                         // So we need to convert the soundLevel to hex so that 1.0f is 0x64 and 0.0f is 0x00
                         // First we multiply it by 100, round it, and then convert it to hex
-                        String brightness = ((int) (soundLevel * 100f)).ToString("X");
-                        String textToWrite = "7e0001" + brightness + "00000000ef";
+                        brightness = ((int) (soundLevel * 100f)).ToString("X");
+                        textToWrite = "7e0001" + brightness + "00000000ef";
                         Utility.WriteHex(textToWrite, characteristic); // result ignored yes, we don't want for it to be blocking
 
                         // We don't want to analyze pixels as fast as we check for the sound level
@@ -189,7 +192,9 @@ namespace AudioBleLedsController
                         {
                             new Thread(async () =>
                             {
-                                color = Utility.CalculateAverageColor(Utility.CaptureFromScreen(rect));
+                                Bitmap screenshot = Utility.CaptureFromScreen(rect);
+                                color = Utility.CalculateAverageColor(screenshot);
+                                screenshot.Dispose();
                                 if (color.GetBrightness() >= 0.85f)
                                 {
                                     // white
@@ -226,7 +231,7 @@ namespace AudioBleLedsController
                                     colorCode = "85";
                                 }
 
-                                Utility.WriteHex("7e0003" + colorCode + "03000000ef", characteristic);
+                                await Utility.WriteHex("7e0003" + colorCode + "03000000ef", characteristic);
                             }).Start();
 
                             cpt = 0;
