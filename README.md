@@ -17,7 +17,7 @@ ______  _      _____
 
 /// Lightweight 
   ./ Low processor usage
-  ./ Low ram usage (<30 MB)
+  ./ Low ram usage (~=10 MB)
   ./ Refresh rate customizable (WIP)
   ./ Area used by color picker customizable (WIP)
 
