@@ -43,6 +43,7 @@ ______  _      _____
 - [x] Change the LEDs color according to the screen main color
 - [ ] Ask for the user to select the device, the service, and the characteristic
 - [ ] Allow the user to change the sound level sensibility
+- [ ] Option for brightness to change according to the bass instead of the audio level
 - [ ] Allow the user to map the colors by himself (the same device may have different color mappings)
 - [ ] Allow the user to save that by giving them command line arguments to run the program - V 1.0.0 goal
 - [ ] Allow the user to start this app in the foreground on windows startup
