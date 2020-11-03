@@ -42,10 +42,10 @@ ______  _      _____
 - [x] Change intensity of the light according to the sound played by the default output device
 - [x] Change the LEDs color according to the screen main color
 - [x] Smooth brightness variation
+- [x] Option for brightness to change according to the bass instead of the audio level
 - [ ] Refresh rate customizable
 - [ ] Ask for the user to select the device, the service, and the characteristic
 - [ ] Allow the user to change the sound level sensibility
-- [ ] Option for brightness to change according to the bass instead of the audio level
 - [ ] Allow the user to map the colors by himself (the same device may have different color mappings)
 - [ ] Allow the user to save that by giving them command line arguments to run the program - V 1.0.0 goal
 - [ ] Allow the user to start this app in the foreground on windows startup

@@ -177,22 +177,35 @@ namespace AudioBleLedsController
 
                     // Smooth brightness variation
                     int current = -1;
-                    const int smoothness = 10;
+                    int smoothness = 0;
+                    bool dynamicSmoothing = false;
+
+                    // Sound type selector
+                    bool sensitiveToBass = true; // false -> sensitive to sound level in general
+                    soundListener.ListenForBass(sensitiveToBass);
 
                     int cpt = 0;
                     while (keepRunning)
                     {
-                        soundLevel = (int) (soundListener.GetSoundLevel() * 100f); // Between 0.0f and 100.0f
+                        soundLevel = (int) ((sensitiveToBass ? soundListener.GetBassLevel() : soundListener.GetSoundLevel()) * 100f); // Between 0.0f and 100.0f
 
                         if (current == -1) current = soundLevel;
 
-                        if (current < soundLevel && smoothness > 0)
+                        if (dynamicSmoothing)
+                        {
+                            current = (current + soundLevel) / 2;
+                        }
+                        else if (current < soundLevel && smoothness > 0)
                         {
                             current = Math.Min(current + 100/smoothness, soundLevel);
                         } 
                         else if (smoothness > 0)
                         {
                             current = Math.Max(current - 100/smoothness, soundLevel);
+                        }
+                        else
+                        {
+                            current = soundLevel;
                         }
                         
 
@@ -205,7 +218,7 @@ namespace AudioBleLedsController
 
                         // We don't want to analyze pixels as fast as we check for the sound level
                         cpt++;
-                        if (cpt == 5)
+                        if (cpt == 10)
                         {
                             new Thread(async () =>
                             {
@@ -254,7 +267,7 @@ namespace AudioBleLedsController
                             cpt = 0;
                         }
                         
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                     }
 
                     soundListener.Dispose();
