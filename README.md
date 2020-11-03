@@ -42,6 +42,7 @@ ______  _      _____
 - [x] Change intensity of the light according to the sound played by the default output device
 - [x] Change the LEDs color according to the screen main color
 - [x] Smooth brightness variation
+- [ ] Refresh rate customizable
 - [ ] Ask for the user to select the device, the service, and the characteristic
 - [ ] Allow the user to change the sound level sensibility
 - [ ] Option for brightness to change according to the bass instead of the audio level
