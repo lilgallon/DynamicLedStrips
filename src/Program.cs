@@ -171,20 +171,35 @@ namespace AudioBleLedsController
                     Rectangle rect = new Rectangle(1920/4, 1080/4, 1920 / 4 * 2, 1080 / 4 * 2);
                     String colorCode = "";
                     Color color;
-                    float soundLevel;
+                    int soundLevel;
                     String brightness;
                     String textToWrite;
+
+                    // Smooth brightness variation
+                    int current = -1;
+                    const int smoothness = 10;
 
                     int cpt = 0;
                     while (keepRunning)
                     {
-                        soundLevel = soundListener.GetSoundLevel(); // Between 0.0f and 1.0f
+                        soundLevel = (int) (soundListener.GetSoundLevel() * 100f); // Between 0.0f and 100.0f
+
+                        if (current == -1) current = soundLevel;
+
+                        if (current < soundLevel && smoothness > 0)
+                        {
+                            current = Math.Min(current + 100/smoothness, soundLevel);
+                        } 
+                        else if (smoothness > 0)
+                        {
+                            current = Math.Max(current - 100/smoothness, soundLevel);
+                        }
+                        
 
                         // Format: 7e 00 01 brightness 00 00 00 00 ef
                         // brightness: 0x00-0x64 (0-100)
-                        // So we need to convert the soundLevel to hex so that 1.0f is 0x64 and 0.0f is 0x00
-                        // First we multiply it by 100, round it, and then convert it to hex
-                        brightness = ((int) (soundLevel * 100f)).ToString("X");
+                        // So we need to convert the soundLevel to hex so that 100.0f is 0x64 and 0.0f is 0x00
+                        brightness = (current).ToString("X");
                         textToWrite = "7e0001" + brightness + "00000000ef";
                         Utility.WriteHex(textToWrite, characteristic); // result ignored yes, we don't want for it to be blocking
 
