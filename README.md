@@ -17,12 +17,13 @@ ______  _      _____
 
 /// Lightweight 
   ./ Low processor usage
-  ./ Low ram usage (~=10 MB)
+  ./ Low ram usage (~=30 MB)
   ./ Refresh rate customizable (WIP)
   ./ Area used by color picker customizable (WIP)
 
 /// Smart
   ./ Finds bluetooth controllers automatically (WIP)
+  ./ It uses bluetooth to comunicate with LED controllers, but you can still use your game controller in the same time!
 
 /// Customizable 
   ./ Toggle features on and off (brightness / color) (WIP)
