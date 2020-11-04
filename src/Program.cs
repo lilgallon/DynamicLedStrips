@@ -214,7 +214,7 @@ namespace AudioBleLedsController
                         // So we need to convert the soundLevel to hex so that 100.0f is 0x64 and 0.0f is 0x00
                         brightness = (current).ToString("X");
                         textToWrite = "7e0001" + brightness + "00000000ef";
-                        Utility.WriteHex(textToWrite, characteristic); // result ignored yes, we don't want for it to be blocking
+                        BleUtility.WriteHex(textToWrite, characteristic); // result ignored yes, we don't want for it to be blocking
 
                         // We don't want to analyze pixels as fast as we check for the sound level
                         cpt++;
@@ -260,7 +260,7 @@ namespace AudioBleLedsController
                                     colorCode = "85";
                                 }
 
-                                await Utility.WriteHex("7e0003" + colorCode + "03000000ef", characteristic);
+                                await BleUtility.WriteHex("7e0003" + colorCode + "03000000ef", characteristic);
                             }).Start();
 
                             cpt = 0;

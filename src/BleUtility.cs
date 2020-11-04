@@ -1,23 +1,29 @@
-﻿using NAudio.Dsp;
-using NAudio.Wave;
-using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+﻿using System;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
-using Windows.Media.Devices;
 using Windows.Security.Cryptography;
 using Windows.Storage.Streams;
 
 namespace GallonHelpers
 {
-    public static class Utility
+    /// <summary>
+    /// Created by Lilian Gallon, 11/01/2020
+    /// 
+    /// Functions to communicate with Bluetooth LE devices.
+    /// Does not interact with regular Bluetooth devices. So
+    /// for example it is possible to use a gaming controller
+    /// at the same time.
+    /// 
+    /// </summary>
+    public static class BleUtility
     {
         #region error codes
         readonly static int E_BLUETOOTH_ATT_WRITE_NOT_PERMITTED = unchecked((int)0x80650003);
         readonly static int E_BLUETOOTH_ATT_INVALID_PDU = unchecked((int)0x80650004);
         readonly static int E_ACCESSDENIED = unchecked((int)0x80070005);
         #endregion
+
+        #region write utilities
 
         /// <summary>
         /// Created by Lilian Gallon, 11/01/2020
@@ -69,5 +75,7 @@ namespace GallonHelpers
                 return false;
             }
         }
+
+        #endregion
     }
 }
