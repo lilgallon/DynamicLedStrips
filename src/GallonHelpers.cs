@@ -22,36 +22,6 @@ namespace GallonHelpers
         /// <summary>
         /// Created by Lilian Gallon, 11/01/2020
         /// 
-        /// Simple Log function that adds a prefix according to the log type
-        /// </summary>
-        /// <param name="msg">The message to log</param>
-        /// <param name="logLevel">The type of the message</param>
-
-        public static void Log(String msg, LogType logType)
-        {
-            String prefix = "";
-            switch (logType)
-            {
-                case LogType.OK:
-                    prefix = "+";
-                    break;
-                case LogType.PENDING:
-                    prefix = "~";
-                    break;
-                case LogType.WARNING:
-                    prefix = "!";
-                    break;
-                case LogType.ERROR:
-                    prefix = "-";
-                    break;
-            }
-
-            Console.WriteLine("[" + prefix + "] " + msg);
-        }
-
-        /// <summary>
-        /// Created by Lilian Gallon, 11/01/2020
-        /// 
         /// It writes the given hexadecimal value to the given gatt charateristic
         /// 
         /// </summary>
@@ -83,26 +53,21 @@ namespace GallonHelpers
                 }
                 else
                 {
-                    Log("Write failed: " + result.Status, LogType.WARNING);
+                    LogHelper.Warn("Write failed: " + result.Status);
                     return false;
                 }
             }
             catch (Exception ex) when (ex.HResult == E_BLUETOOTH_ATT_INVALID_PDU)
             {
-                Log("Write failed: " + ex.Message, LogType.ERROR);
+                LogHelper.Error("Write failed: " + ex.Message);
                 return false;
             }
             catch (Exception ex) when (ex.HResult == E_BLUETOOTH_ATT_WRITE_NOT_PERMITTED || ex.HResult == E_ACCESSDENIED)
             {
                 // This usually happens when a device reports that it support writing, but it actually doesn't.
-                Log("Write failed: " + ex.Message, LogType.ERROR);
+                LogHelper.Error("Write failed: " + ex.Message);
                 return false;
             }
         }
-    }
-
-    public enum LogType
-    {
-        ERROR, WARNING, OK, PENDING
     }
 }

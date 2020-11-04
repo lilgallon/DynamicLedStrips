@@ -35,7 +35,7 @@ namespace AudioBleLedsController
             if (args.Length == 0)
             {
                 deviceId = "be:89:d0:01:7b:9c";
-                Utility.Log("No arguments given, will use the id " + deviceId, LogType.WARNING);
+                LogHelper.Warn("No arguments given, will use the id " + deviceId);
             } 
             else
             {
@@ -45,11 +45,11 @@ namespace AudioBleLedsController
             // BluetoothLE#BluetoothLE00:15:83:ed:e4:12-be:89:d0:01:7b:9c
             deviceId = "BluetoothLE#BluetoothLE00:15:83:ed:e4:12-" + deviceId;
 
-            Utility.Log("Looking for BLE device of id " + deviceId, LogType.PENDING);
+            LogHelper.Pending("Looking for BLE device of id " + deviceId);
             bluetoothLeDevice = await BluetoothLEDevice.FromIdAsync(deviceId);
             if (bluetoothLeDevice == null)
             {
-                Utility.Log("Failed to connect to device", LogType.ERROR);
+                LogHelper.Error("Failed to connect to device");
             }
 
             #endregion
@@ -64,16 +64,16 @@ namespace AudioBleLedsController
 
             if (bluetoothLeDevice != null)
             {
-                Utility.Log("Looking for services", LogType.PENDING);
+                LogHelper.Pending("Looking for services");
                 GattDeviceServicesResult result = await bluetoothLeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached);
 
                 if (result.Status == GattCommunicationStatus.Success)
                 {
                     var services = result.Services;
-                    Utility.Log(String.Format("Found {0} services", services.Count), LogType.OK);
+                    LogHelper.Ok(String.Format("Found {0} services", services.Count));
                     foreach (var service in services)
                     {
-                        Utility.Log(String.Format("Service: {0}", DisplayHelpers.GetServiceName(service)), LogType.OK);
+                        LogHelper.Ok(String.Format("Service: {0}", DisplayHelpers.GetServiceName(service)));
                     }
 
                     // TODO: select service
@@ -82,7 +82,7 @@ namespace AudioBleLedsController
                 }
                 else
                 {
-                    Utility.Log("Device unreachable", LogType.ERROR);
+                    LogHelper.Error("Device unreachable");
                 }
             }
 
@@ -115,7 +115,7 @@ namespace AudioBleLedsController
 
                             foreach (GattCharacteristic c in characteristics)
                             {
-                                Utility.Log(DisplayHelpers.GetCharacteristicName(c), LogType.OK);
+                                LogHelper.Ok(DisplayHelpers.GetCharacteristicName(c));
                             }
 
                             // TODO: select
@@ -124,18 +124,18 @@ namespace AudioBleLedsController
                         }
                         else
                         {
-                            Utility.Log("Error accessing service.", LogType.ERROR);
+                            LogHelper.Error("Error accessing service.");
                         }
                     }
                     else
                     {
                         // Not granted access
-                        Utility.Log("Error accessing service.", LogType.ERROR);
+                        LogHelper.Error("Error accessing service.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Utility.Log("Restricted service. Can't read characteristics: " + ex.Message, LogType.ERROR);
+                    LogHelper.Error("Restricted service. Can't read characteristics: " + ex.Message);
                 }
             }
 
@@ -156,7 +156,7 @@ namespace AudioBleLedsController
                     properties.HasFlag(GattCharacteristicProperties.WriteWithoutResponse)
                     )
                 {
-                    Utility.Log("Correct properties!", LogType.OK);
+                    LogHelper.Ok("Correct properties!");
 
                     SoundListener soundListener = new SoundListener();
 
@@ -165,7 +165,7 @@ namespace AudioBleLedsController
                         keepRunning = false;
                     };
 
-                    Utility.Log("Program running. Press CTRL+C to stop", LogType.OK);
+                    LogHelper.Ok("Program running. Press CTRL+C to stop");
 
                     // Rectangle in the middle of the screen
                     Rectangle rect = new Rectangle(1920/4, 1080/4, 1920 / 4 * 2, 1080 / 4 * 2);
@@ -273,7 +273,7 @@ namespace AudioBleLedsController
                 }
                 else
                 {
-                    Utility.Log("These properties don't have 'Write' or 'WriteWithoutResponse'", LogType.ERROR);
+                    LogHelper.Error("These properties don't have 'Write' or 'WriteWithoutResponse'");
                 }
             }
 
@@ -285,9 +285,9 @@ namespace AudioBleLedsController
 
             #region cleanup
 
-            Utility.Log("Exiting properly", LogType.PENDING);
+            LogHelper.Pending("Exiting properly");
             bluetoothLeDevice?.Dispose();
-            Utility.Log("Done. Type a key to exit", LogType.OK);
+            LogHelper.Ok("Done. Type a key to exit");
             Console.ReadKey(true);
 
             #endregion
