@@ -14,7 +14,7 @@ namespace AudioBleLedsController
     class Program
     {
         static volatile bool keepRunning = true;
-        static BluetoothLEDevice bluetoothLeDevice = null;
+        static BluetoothLEDevice device = null;
 
         static void Main(string[] args)
         {
@@ -42,12 +42,9 @@ namespace AudioBleLedsController
                 deviceId = args[0];
             }
 
-            // BluetoothLE#BluetoothLE00:15:83:ed:e4:12-be:89:d0:01:7b:9c
-            deviceId = "BluetoothLE#BluetoothLE00:15:83:ed:e4:12-" + deviceId;
-
             LogHelper.Pending("Looking for BLE device of id " + deviceId);
-            bluetoothLeDevice = await BluetoothLEDevice.FromIdAsync(deviceId);
-            if (bluetoothLeDevice == null)
+            device = await BleUtility.Connect(deviceId);
+            if (device == null)
             {
                 LogHelper.Error("Failed to connect to device");
             }
@@ -62,27 +59,29 @@ namespace AudioBleLedsController
 
             GattDeviceService targettedService = null;
 
-            if (bluetoothLeDevice != null)
+            if (device != null)
             {
                 LogHelper.Pending("Looking for services");
-                GattDeviceServicesResult result = await bluetoothLeDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached);
 
-                if (result.Status == GattCommunicationStatus.Success)
+                IReadOnlyList<GattDeviceService> services = await BleUtility.GetServices(device);
+
+                if (services != null)
                 {
-                    var services = result.Services;
-                    LogHelper.Ok(String.Format("Found {0} services", services.Count));
+                    LogHelper.Ok(String.Format("Found {0} service(s)", services.Count));
+                    LogHelper.IncrementIndentLevel();
                     foreach (var service in services)
                     {
                         LogHelper.Ok(String.Format("Service: {0}", DisplayHelpers.GetServiceName(service)));
                     }
+                    LogHelper.DecrementIndentLevel();
 
                     // TODO: select service
-
                     targettedService = services[1];
                 }
                 else
                 {
                     LogHelper.Error("Device unreachable");
+                    LogHelper.ResetIndentLevel();
                 }
             }
 
@@ -98,44 +97,21 @@ namespace AudioBleLedsController
 
             if (targettedService != null)
             {
-                IReadOnlyList<GattCharacteristic> characteristics = null;
+                LogHelper.Pending("Looking for characteristics");
+                // Error messages are handled in the function
+                IReadOnlyList<GattCharacteristic> characteristics = await BleUtility.GetCharacteristics(targettedService);
 
-                try
+                LogHelper.Ok(String.Format("Found {0} characteristic(s)", characteristics.Count));
+                LogHelper.IncrementIndentLevel();
+                foreach (var charact in characteristics)
                 {
-                    // Ensure we have access to the device.
-                    var accessStatus = await targettedService.RequestAccessAsync();
-                    if (accessStatus == DeviceAccessStatus.Allowed)
-                    {
-                        // BT_Code: Get all the child characteristics of a service. Use the cache mode to specify uncached characterstics only 
-                        // and the new Async functions to get the characteristics of unpaired devices as well. 
-                        var result = await targettedService.GetCharacteristicsAsync(BluetoothCacheMode.Uncached);
-                        if (result.Status == GattCommunicationStatus.Success)
-                        {
-                            characteristics = result.Characteristics;
-
-                            foreach (GattCharacteristic c in characteristics)
-                            {
-                                LogHelper.Ok(DisplayHelpers.GetCharacteristicName(c));
-                            }
-
-                            // TODO: select
-
-                            characteristic = characteristics[0];
-                        }
-                        else
-                        {
-                            LogHelper.Error("Error accessing service.");
-                        }
-                    }
-                    else
-                    {
-                        // Not granted access
-                        LogHelper.Error("Error accessing service.");
-                    }
+                    LogHelper.Ok(String.Format("Characteristic: {0}", DisplayHelpers.GetCharacteristicName(charact)));
                 }
-                catch (Exception ex)
+                LogHelper.DecrementIndentLevel();
+
+                if (characteristics != null)
                 {
-                    LogHelper.Error("Restricted service. Can't read characteristics: " + ex.Message);
+                    characteristic = characteristics[0];
                 }
             }
 
@@ -149,12 +125,8 @@ namespace AudioBleLedsController
 
             if (characteristic != null)
             {
-                GattCharacteristicProperties properties = characteristic.CharacteristicProperties;
-
-                if (
-                    properties.HasFlag(GattCharacteristicProperties.Write) || 
-                    properties.HasFlag(GattCharacteristicProperties.WriteWithoutResponse)
-                    )
+                
+                if (BleUtility.IsWriteableCharateristic(characteristic))
                 {
                     LogHelper.Ok("Correct properties!");
 
@@ -273,7 +245,7 @@ namespace AudioBleLedsController
                 }
                 else
                 {
-                    LogHelper.Error("These properties don't have 'Write' or 'WriteWithoutResponse'");
+                    LogHelper.Error("This characteristic does not have the 'Write' or 'WriteWithoutResponse' properties");
                 }
             }
 
@@ -286,7 +258,7 @@ namespace AudioBleLedsController
             #region cleanup
 
             LogHelper.Pending("Exiting properly");
-            bluetoothLeDevice?.Dispose();
+            device?.Dispose();
             LogHelper.Ok("Done. Type a key to exit");
             Console.ReadKey(true);
 

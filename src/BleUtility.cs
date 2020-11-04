@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Enumeration;
 using Windows.Security.Cryptography;
 using Windows.Storage.Streams;
 
@@ -23,7 +26,98 @@ namespace GallonHelpers
         readonly static int E_ACCESSDENIED = unchecked((int)0x80070005);
         #endregion
 
-        #region write utilities
+        #region connection
+
+        /// <summary>
+        /// Tries to connect to the given device
+        /// </summary>
+        /// <param name="id">Device id (ex: "be:89:d0:01:7b:9c")</param>
+        /// <returns>BluetoothLEDevice: succed, null otherwise</returns>
+        public static async Task<BluetoothLEDevice> Connect(String id)
+        {
+            id = "BluetoothLE#BluetoothLE00:15:83:ed:e4:12-" + id;
+            return await BluetoothLEDevice.FromIdAsync(id);
+        }
+
+        #endregion
+
+        #region services
+
+        /// <summary>
+        /// Tries to retrieve the device's services.
+        /// </summary>
+        /// <param name="device">the connected device</param>
+        /// <returns>List of services if succeed, null otherwise</returns>
+        public static async Task<IReadOnlyList<GattDeviceService>> GetServices(BluetoothLEDevice device)
+        {
+            GattDeviceServicesResult result = await device.GetGattServicesAsync(BluetoothCacheMode.Uncached);
+            return result.Status == GattCommunicationStatus.Success ? result.Services : null;
+        }
+
+        #endregion
+
+        #region caracteristics
+
+        /// <summary>
+        /// Retrieves the characteristics of the given service.
+        /// The error logging is handled in the function.
+        /// </summary>
+        /// <param name="service"></param>
+        /// <returns>The list of characteristic if it succeed, null otherwise</returns>
+        public static async Task<IReadOnlyList<GattCharacteristic>> GetCharacteristics(GattDeviceService service)
+        {
+            try
+            {
+                DeviceAccessStatus status = await service.RequestAccessAsync();
+
+                if (status == DeviceAccessStatus.Allowed)
+                {
+                    GattCharacteristicsResult result = await service.GetCharacteristicsAsync(BluetoothCacheMode.Uncached);
+                    
+                    if (result.Status == GattCommunicationStatus.Success)
+                    {
+                        return result.Characteristics;
+                    }
+                    else
+                    {
+                        LogHelper.ResetIndentLevel();
+                        LogHelper.Error("Error accessing device");
+                        return null;
+                    }
+                } 
+                else
+                {
+                    LogHelper.ResetIndentLevel();
+                    LogHelper.Error("Error accessing device: access not granted");
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                LogHelper.ResetIndentLevel();
+                LogHelper.Error("Restricted service. Can't read characteristics: " + e.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the given characteristic is writeable.
+        /// </summary>
+        /// <param name="characteristic"></param>
+        /// <returns></returns>
+        public static bool IsWriteableCharateristic(GattCharacteristic characteristic)
+        {
+            return (
+                characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Write) ||
+                characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.WriteWithoutResponse)
+            );
+        }
+
+
+
+        #endregion
+
+        #region writing utilities
 
         /// <summary>
         /// Created by Lilian Gallon, 11/01/2020
@@ -77,5 +171,7 @@ namespace GallonHelpers
         }
 
         #endregion
+    
+        
     }
 }
