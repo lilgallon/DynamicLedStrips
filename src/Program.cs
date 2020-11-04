@@ -10,6 +10,17 @@ using System.Drawing;
 
 namespace AudioBleLedsController
 {
+    struct Configuration
+    {
+        enum SmoothingMode { DYNAMIC, VALUE, NONE };
+        enum AudioSensibility { SOUND_LEVEL, BASS_LEVEL, NONE };
+        enum ColorSensibility { COLOR_AVG, NONE };
+
+        static SmoothingMode smoothingMode;
+        static AudioSensibility audioSensibility;
+        static ColorSensibility colorSensibility;
+    }
+
     class Program
     {
         static volatile bool keepRunning = true;
@@ -33,10 +44,16 @@ namespace AudioBleLedsController
         {
             PrintHeader();
 
-            Console.WriteLine("Connection");
-            Console.WriteLine("-");
+            #region configuration
+            
+            PrintTitle("Configuration");
+            Configure();
+
+            #endregion
 
             #region connection
+
+            PrintTitle("Connection");
 
             String deviceId;
 
@@ -59,11 +76,9 @@ namespace AudioBleLedsController
 
             #endregion
 
-            Console.WriteLine("");
-            Console.WriteLine("Services");
-            Console.WriteLine("-");
-
             #region services
+
+            PrintTitle("\nServices");
 
             GattDeviceService targettedService = null;
 
@@ -95,11 +110,9 @@ namespace AudioBleLedsController
 
             #endregion
 
-            Console.WriteLine("");
-            Console.WriteLine("Caracteristics");
-            Console.WriteLine("-");
-
             #region caracteristics
+
+            PrintTitle("\nCaracteristics");
 
             GattCharacteristic characteristic = null;
 
@@ -125,11 +138,9 @@ namespace AudioBleLedsController
 
             #endregion
 
-            Console.WriteLine("");
-            Console.WriteLine("Communication");
-            Console.WriteLine("-");
-
             #region communication
+
+            PrintTitle("\nCommunication");
 
             if (characteristic != null)
             {
@@ -147,18 +158,20 @@ namespace AudioBleLedsController
 
             #endregion
 
-            Console.WriteLine("");
-            Console.WriteLine("Cleanup");
-            Console.WriteLine("-");
-
             #region cleanup
 
+            PrintTitle("\nCleanup");
             LogHelper.Pending("Exiting properly");
             device?.Dispose();
             LogHelper.Ok("Done. Type a key to exit");
             Console.ReadKey(true);
 
             #endregion
+        }
+
+        static void Configure()
+        {
+
         }
 
         /// <summary>
@@ -316,6 +329,12 @@ namespace AudioBleLedsController
             Console.WriteLine("| |/ / | |____/\\__/ /  Version 0.1.0");
             Console.WriteLine("|___/  \\_____/\\____/   MIT License, (c) Lilian Gallon 2020");
             Console.WriteLine("");
+        }
+    
+        static void PrintTitle(String title)
+        {
+            LogHelper.Log(title);
+            LogHelper.Log("-");
         }
     }
 }
