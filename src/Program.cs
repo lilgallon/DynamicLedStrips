@@ -222,9 +222,8 @@ namespace AudioBleLedsController
                         {
                             new Thread(async () =>
                             {
-                                Bitmap screenshot = Utility.CaptureFromScreen(rect);
-                                color = Utility.CalculateAverageColor(screenshot);
-                                screenshot.Dispose();
+                                color = ScreenUtils.CalculateAverageScreenColorAt(rect);
+
                                 if (color.GetBrightness() >= 0.85f)
                                 {
                                     // white
