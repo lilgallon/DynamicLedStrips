@@ -12,12 +12,12 @@ namespace GallonHelpers
     {
         public enum LogType
         {
-            OK, PENDING, WARNING, ERROR, 
+            OK, PENDING, WARNING, ERROR, QUESTION, EMPTY
         }
 
         private static int  indentLevel = 0;
         private static bool overwrite = false;
-        private static int lastLineLength = 0;
+        private static bool newLine = true;
 
         public static void Ok(String msg)
         {
@@ -37,6 +37,16 @@ namespace GallonHelpers
         public static void Error(String msg)
         {
             Log(msg, LogType.ERROR);
+        }
+
+        public static void Question(String msg)
+        {
+            Log(msg, LogType.QUESTION);
+        }
+
+        public static void Log(String msg)
+        {
+            Log(msg, LogType.EMPTY);
         }
 
         /// <summary>
@@ -66,6 +76,9 @@ namespace GallonHelpers
                 case LogType.ERROR:
                     prefix = "[-]: ";
                     break;
+                case LogType.QUESTION:
+                    prefix = "[?]: ";
+                    break;
             }
 
             for (int i = 0; i < indentLevel; i++)
@@ -75,21 +88,21 @@ namespace GallonHelpers
 
             if (overwrite)
             {
-                String erase = "";
-                for (int i = 0; i < lastLineLength; i++)
-                {
-                    erase += " ";
-                }
+                // Clear line
+                int currentLineCursor = Console.CursorTop;
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.Write(new string(' ', Console.WindowWidth));
+                Console.SetCursorPosition(0, currentLineCursor);
 
-                Console.Write("\r" + erase);
-                Console.Write("\r" + prefix + msg);
+                // Write over it
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.Write(prefix + msg);
             }
             else
             {
-                Console.WriteLine(prefix + msg);
+                if (newLine) Console.WriteLine(prefix + msg);
+                else Console.Write(prefix + msg);
             }
-
-            lastLineLength = (prefix + msg).Length;
         }
 
         /// <summary>
@@ -155,6 +168,11 @@ namespace GallonHelpers
         public static void Overwrite(bool overwrite)
         {
             LogHelper.overwrite = overwrite;
+        }
+
+        public static void NewLine(bool newLine)
+        {
+            LogHelper.newLine = newLine;
         }
     }
 }

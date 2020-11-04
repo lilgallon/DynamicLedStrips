@@ -15,11 +15,20 @@ namespace AudioBleLedsController
         static volatile bool keepRunning = true;
         static BluetoothLEDevice device = null;
 
+        /// <summary>
+        /// Entry point
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             Run(args).Wait();
         }
 
+        /// <summary>
+        /// The actual program, needs to be waited
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         static async Task Run(string[] args)
         {
             PrintHeader();
@@ -152,6 +161,10 @@ namespace AudioBleLedsController
             #endregion
         }
 
+        /// <summary>
+        /// The program Loop: CTRL+C to stop it properly
+        /// </summary>
+        /// <param name="characteristic"></param>
         static void Loop(GattCharacteristic characteristic)
         {
             SoundListener soundListener = new SoundListener();
@@ -266,6 +279,32 @@ namespace AudioBleLedsController
             }
 
             soundListener.Dispose();
+        }
+
+        static int AskUserToChoose(String question, String[] choices)
+        {
+            LogHelper.Question(question);
+            LogHelper.IncrementIndentLevel();
+            for (int i = 0; i < choices.Length; i++)
+            {
+                LogHelper.Log("[" + i + "]: " + choices[i]);
+            }
+            LogHelper.DecrementIndentLevel();
+
+            LogHelper.Log("");
+            LogHelper.NewLine(false);
+            int choice = -1;
+            do
+            {
+                LogHelper.Question("Choice: ");
+                LogHelper.Overwrite(true); // order important
+            } 
+            while (!Int32.TryParse(Console.ReadLine(), out choice) || choice < 0 || choice >= choices.Length);
+
+            LogHelper.Overwrite(false);
+            LogHelper.NewLine(true);
+
+            return choice;
         }
 
         static void PrintHeader()
