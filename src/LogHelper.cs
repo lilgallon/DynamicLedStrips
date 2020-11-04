@@ -174,5 +174,48 @@ namespace GallonHelpers
         {
             LogHelper.newLine = newLine;
         }
+
+        public static int AskUserToChoose(String question, String[] choices)
+        {
+            LogHelper.Question(question);
+            LogHelper.IncrementIndentLevel();
+            for (int i = 0; i < choices.Length; i++)
+            {
+                LogHelper.Log("[" + i + "]: " + choices[i]);
+            }
+            LogHelper.DecrementIndentLevel();
+
+            LogHelper.Log("");
+            LogHelper.NewLine(false);
+            int choice = -1;
+            do
+            {
+                LogHelper.Question("Choice: ");
+                LogHelper.Overwrite(true); // order important
+            }
+            while (!Int32.TryParse(Console.ReadLine(), out choice) || choice < 0 || choice >= choices.Length);
+
+            LogHelper.Overwrite(false);
+            LogHelper.NewLine(true);
+
+            return choice;
+        }
+
+        public static void PrintHeader()
+        {
+            LogHelper.Log("______  _      _____ ");
+            LogHelper.Log("|  _  \\| |    /  ___|");
+            LogHelper.Log("| | | || |    \\ `--. ");
+            LogHelper.Log("| | | || |     `--. \\  Dynamic LED Strips");
+            LogHelper.Log("| |/ / | |____/\\__/ /  Version 0.1.0");
+            LogHelper.Log("|___/  \\_____/\\____/   MIT License, (c) Lilian Gallon 2020");
+            LogHelper.Log("");
+        }
+
+        public static void PrintTitle(String title)
+        {
+            LogHelper.Log(title);
+            LogHelper.Log("-");
+        }
     }
 }

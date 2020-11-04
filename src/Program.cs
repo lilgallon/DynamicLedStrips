@@ -42,18 +42,18 @@ namespace AudioBleLedsController
         /// <returns></returns>
         static async Task Run(string[] args)
         {
-            PrintHeader();
+            LogHelper.PrintHeader();
 
             #region configuration
             
-            PrintTitle("Configuration");
+            LogHelper.PrintTitle("Configuration");
             Configure();
 
             #endregion
 
             #region connection
 
-            PrintTitle("Connection");
+            LogHelper.PrintTitle("Connection");
 
             String deviceId;
 
@@ -78,7 +78,7 @@ namespace AudioBleLedsController
 
             #region services
 
-            PrintTitle("\nServices");
+            LogHelper.PrintTitle("\nServices");
 
             GattDeviceService targettedService = null;
 
@@ -112,7 +112,7 @@ namespace AudioBleLedsController
 
             #region caracteristics
 
-            PrintTitle("\nCaracteristics");
+            LogHelper.PrintTitle("\nCaracteristics");
 
             GattCharacteristic characteristic = null;
 
@@ -140,7 +140,7 @@ namespace AudioBleLedsController
 
             #region communication
 
-            PrintTitle("\nCommunication");
+            LogHelper.PrintTitle("\nCommunication");
 
             if (characteristic != null)
             {
@@ -160,7 +160,7 @@ namespace AudioBleLedsController
 
             #region cleanup
 
-            PrintTitle("\nCleanup");
+            LogHelper.PrintTitle("\nCleanup");
             LogHelper.Pending("Exiting properly");
             device?.Dispose();
             LogHelper.Ok("Done. Type a key to exit");
@@ -292,49 +292,6 @@ namespace AudioBleLedsController
             }
 
             soundListener.Dispose();
-        }
-
-        static int AskUserToChoose(String question, String[] choices)
-        {
-            LogHelper.Question(question);
-            LogHelper.IncrementIndentLevel();
-            for (int i = 0; i < choices.Length; i++)
-            {
-                LogHelper.Log("[" + i + "]: " + choices[i]);
-            }
-            LogHelper.DecrementIndentLevel();
-
-            LogHelper.Log("");
-            LogHelper.NewLine(false);
-            int choice = -1;
-            do
-            {
-                LogHelper.Question("Choice: ");
-                LogHelper.Overwrite(true); // order important
-            } 
-            while (!Int32.TryParse(Console.ReadLine(), out choice) || choice < 0 || choice >= choices.Length);
-
-            LogHelper.Overwrite(false);
-            LogHelper.NewLine(true);
-
-            return choice;
-        }
-
-        static void PrintHeader()
-        {
-            Console.WriteLine("______  _      _____ ");
-            Console.WriteLine("|  _  \\| |    /  ___|");
-            Console.WriteLine("| | | || |    \\ `--. ");
-            Console.WriteLine("| | | || |     `--. \\  Dynamic LED Strips");
-            Console.WriteLine("| |/ / | |____/\\__/ /  Version 0.1.0");
-            Console.WriteLine("|___/  \\_____/\\____/   MIT License, (c) Lilian Gallon 2020");
-            Console.WriteLine("");
-        }
-    
-        static void PrintTitle(String title)
-        {
-            LogHelper.Log(title);
-            LogHelper.Log("-");
         }
     }
 }
