@@ -96,7 +96,7 @@ namespace GallonHelpers
         }
 
         /// <summary>
-        /// Changes the log indent level
+        /// Resets the log level to 0
         /// 
         /// Example:
         /// 
@@ -107,9 +107,43 @@ namespace GallonHelpers
         ///  
         /// </summary>
         /// <param name="overwrite"></param>
-        public static void SetIndentLevel(int indentLevel)
+        public static void ResetIndentLevel()
         {
-            LogHelper.indentLevel = indentLevel;
+            LogHelper.indentLevel = 0;
+        }
+
+        /// <summary>
+        /// Increments the log indent level
+        /// 
+        /// Example:
+        /// 
+        /// [+] Services
+        ///  |  [+] Service A
+        ///  |  [+] Service B
+        ///  |   |  [+] Property X
+        ///  
+        /// </summary>
+        /// <param name="overwrite"></param>
+        public static void IncrementIndentLevel()
+        {
+            LogHelper.indentLevel++;
+        }
+
+        /// <summary>
+        /// Decrements the log indent level
+        /// 
+        /// Example:
+        /// 
+        /// [+] Services
+        ///  |  [+] Service A
+        ///  |  [+] Service B
+        ///  |   |  [+] Property X
+        ///  
+        /// </summary>
+        /// <param name="overwrite"></param>
+        public static void DecrementIndentLevel()
+        {
+            LogHelper.indentLevel--;
         }
 
         public static int GetIndentLevel()
