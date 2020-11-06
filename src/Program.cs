@@ -19,6 +19,16 @@ namespace AudioBleLedsController
         static SmoothingMode smoothingMode;
         static AudioSensibility audioSensibility;
         static ColorSensibility colorSensibility;
+
+        /// <summary>
+        /// Creates a string containing all the arguments needed to run
+        /// the program with the current configuration
+        /// </summary>
+        /// <returns></returns>
+        static String saveSettings()
+        {
+            return "todo";
+        }
     }
 
     class Program
@@ -78,7 +88,7 @@ namespace AudioBleLedsController
 
             #region services
 
-            LogHelper.PrintTitle("\nServices");
+            LogHelper.PrintTitle("Services");
 
             GattDeviceService targettedService = null;
 
@@ -112,7 +122,7 @@ namespace AudioBleLedsController
 
             #region caracteristics
 
-            LogHelper.PrintTitle("\nCaracteristics");
+            LogHelper.PrintTitle("Caracteristics");
 
             GattCharacteristic characteristic = null;
 
@@ -140,7 +150,7 @@ namespace AudioBleLedsController
 
             #region communication
 
-            LogHelper.PrintTitle("\nCommunication");
+            LogHelper.PrintTitle("Communication");
 
             if (characteristic != null)
             {
@@ -160,7 +170,7 @@ namespace AudioBleLedsController
 
             #region cleanup
 
-            LogHelper.PrintTitle("\nCleanup");
+            LogHelper.PrintTitle("Cleanup");
             LogHelper.Pending("Exiting properly");
             device?.Dispose();
             LogHelper.Ok("Done. Type a key to exit");

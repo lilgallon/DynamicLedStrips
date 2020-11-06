@@ -214,7 +214,7 @@ namespace GallonHelpers
 
         public static void PrintTitle(String title)
         {
-            LogHelper.Log(title);
+            LogHelper.Log("\n" + title);
             LogHelper.Log("-");
         }
     }
