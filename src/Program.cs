@@ -7,25 +7,29 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using System.Threading;
 using System.Drawing;
+using Windows.Devices.Enumeration;
 
 namespace AudioBleLedsController
 {
     struct Configuration
     {
-        enum SmoothingMode { DYNAMIC, VALUE, NONE };
-        enum AudioSensibility { SOUND_LEVEL, BASS_LEVEL, NONE };
-        enum ColorSensibility { COLOR_AVG, NONE };
+        public enum SmoothingMode { NONE = 0, DYNAMIC = 1, VALUE = 2 };
+        public enum AudioSensibility { BASS_LEVEL = 0, SOUND_LEVEL = 1, NONE = 2 };
+        public enum ColorSensibility { COLOR_AVG = 0, NONE = 1 };
 
-        static SmoothingMode smoothingMode;
-        static AudioSensibility audioSensibility;
-        static ColorSensibility colorSensibility;
+        public static SmoothingMode smoothingMode;
+        public static AudioSensibility audioSensibility;
+        public static ColorSensibility colorSensibility;
+
+        public static string deviceId;
+        public static double smoothingValue;
 
         /// <summary>
         /// Creates a string containing all the arguments needed to run
         /// the program with the current configuration
         /// </summary>
         /// <returns></returns>
-        static String saveSettings()
+        public static String SaveSettings()
         {
             return "todo";
         }
@@ -42,7 +46,8 @@ namespace AudioBleLedsController
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            Run(args).Wait();
+            Configure();
+            //Run(args).Wait();
         }
 
         /// <summary>
@@ -181,7 +186,82 @@ namespace AudioBleLedsController
 
         static void Configure()
         {
+            BleUtility.Discovery bleDiscovery = null;
 
+            int finder = LogHelper.AskUserToChoose(
+                "Device finder: ",
+                new string[] {"Automatic (will find the compatible devices)", "Manual (you know the device's id)"}
+            );
+
+            if (finder == 0)
+            {
+                bleDiscovery = new BleUtility.Discovery();
+                bleDiscovery.Start();
+
+                LogHelper.Overwrite(true);
+                LogHelper.NewLine(false);
+
+                while (!bleDiscovery.HasEnded())
+                {
+                    Thread.Sleep(50);
+                }
+                LogHelper.Overwrite(false);
+                LogHelper.NewLine(true);
+                LogHelper.Log("");
+
+                LogHelper.Ok("Devices:");
+                LogHelper.IncrementIndentLevel();
+                List<DeviceInformation> devices = bleDiscovery.GetDevices();
+                foreach (DeviceInformation device in devices)
+                {
+                    LogHelper.Ok(device.Id + " " + device.Name);
+                }
+                LogHelper.DecrementIndentLevel();
+
+                // TODO: check for compatible devices by connecting and checking if they're connectable
+                // TODO: ask for the user to select a device if one or more were found
+
+                bleDiscovery.Dispose();
+            }
+            else if (finder == 1)
+            {
+                Configuration.deviceId = LogHelper.AskUserForString("Device id: ");
+            }
+
+            int settings = LogHelper.AskUserToChoose(
+                "Settings: ",
+                new string[] { "Default (recommended settings)", "Manual (let me choose)" }
+            );
+
+            if (settings == 0)
+            {
+                // Default settings
+                Configuration.smoothingMode = Configuration.SmoothingMode.NONE;
+                Configuration.audioSensibility = Configuration.AudioSensibility.BASS_LEVEL;
+                Configuration.colorSensibility = Configuration.ColorSensibility.COLOR_AVG;
+            }
+            else
+            {
+                Configuration.smoothingMode = (Configuration.SmoothingMode) LogHelper.AskUserToChoose(
+                    "Smoothing: ",
+                    new string[] { "None (default: no smoothing)", "Dynamic (automatic smooth)", "Value (you define the smoothness)" }
+                );
+
+                if (Configuration.smoothingMode == Configuration.SmoothingMode.VALUE)
+                {
+                    Configuration.smoothingValue = LogHelper.AskUserForDouble("Value for smoothing (>0.1 & <100)", 0.1d, 100d);
+                }
+
+                Configuration.audioSensibility = (Configuration.AudioSensibility) LogHelper.AskUserToChoose(
+                    "Audio sensibility: ",
+                    new string[] { "Bass (default)", "Audio level", "None (brightness won't change)" }
+                );
+
+                Configuration.colorSensibility = (Configuration.ColorSensibility) LogHelper.AskUserToChoose(
+                    "Color sensibility: ",
+                    new string[] { "Average screen color (default)", "None (color won't change)" }
+                );
+            }
         }
 
         /// <summary>
