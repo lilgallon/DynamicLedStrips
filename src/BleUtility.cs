@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
+using Windows.Devices.Haptics;
 using Windows.Security.Cryptography;
 using Windows.Storage.Streams;
 
@@ -39,12 +41,20 @@ namespace GallonHelpers
             #endregion
 
             private DeviceWatcher deviceWatcher = null;
+
+            // This list may contain devices that are no longer reacheable
+            private List<DeviceInformation> devicesWithNames = new List<DeviceInformation>();
+            // This list contains the currently reacheable devices
             private List<DeviceInformation> devices = new List<DeviceInformation>();
+            // We need these two Lists to give names to devices when the discovery ends
+            // because sometime, when updating, the name of a device becomes "" instead of
+            // its name
+
             private bool ended = true;
 
-            public Discovery()
+            ~Discovery()
             {
-
+                Dispose();
             }
 
             /// <summary>
@@ -68,8 +78,11 @@ namespace GallonHelpers
                     deviceWatcher.Stopped += DeviceWatcher_Stopped;
                 }
 
-                LogHelper.Ok("Discovery in progress...");
+                LogHelper.Pending("Discovery in progress...");
                 LogHelper.IncrementIndentLevel();
+
+                LogHelper.Overwrite(true);
+                LogHelper.NewLine(false);
 
                 ended = false;
                 devices.Clear();
@@ -121,10 +134,16 @@ namespace GallonHelpers
             private void End()
             {
                 ended = true;
+                LogHelper.Overwrite(false);
+                LogHelper.NewLine(true);
+
+                devices.AddRange(devicesWithNames);
+                devices = devices.Distinct().ToList();
+                devicesWithNames.Clear();
                 LogHelper.DecrementIndentLevel();
             }
 
-            private DeviceInformation FindDevice(string id)
+            private DeviceInformation FindDevice(string id, List<DeviceInformation> devices)
             {
                 foreach (DeviceInformation deviceInfo in devices)
                 {
@@ -138,30 +157,45 @@ namespace GallonHelpers
 
             private void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInfo)
             {
-                if (FindDevice(deviceInfo.Id) == null)
+                if (ended) return;
+
+                if (FindDevice(deviceInfo.Id, devices) == null)
                 {
-                    LogHelper.Ok("Device \"" + deviceInfo.Name + "\" added, id=" + deviceInfo.Id);
+                    LogHelper.Log("Device \"" + (deviceInfo.Name == "" ? "?" : deviceInfo.Name) + "\" added, id=" + deviceInfo.Id.Split("-").Last());
                     devices.Add(deviceInfo);
+                }
+
+                if (deviceInfo.Name != "" && FindDevice(deviceInfo.Id, devicesWithNames) == null)
+                {
+                    devicesWithNames.Add(deviceInfo);
                 }
             }
 
             private void DeviceWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
             {
-                DeviceInformation deviceInfo = FindDevice(deviceInfoUpdate.Id);
+                if (ended) return;
+
+                DeviceInformation deviceInfo = FindDevice(deviceInfoUpdate.Id, devices);
                 if (deviceInfo != null)
                 {
-                    LogHelper.Ok("Device \"" + deviceInfo.Name + "\" updated, id=" + deviceInfo.Id);
-                    // we udpate the device with the new information
+                    LogHelper.Log("Device \"" + (deviceInfo.Name == "" ? "?" : deviceInfo.Name) + "\" updated, id=" + deviceInfo.Id.Split("-").Last());
                     deviceInfo.Update(deviceInfoUpdate);
+                }
+
+                if (deviceInfo.Name != "" && FindDevice(deviceInfoUpdate.Id, devicesWithNames) == null)
+                {
+                    devicesWithNames.Add(deviceInfo);
                 }
             }
 
             private void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
             {
-                DeviceInformation deviceInfo = FindDevice(deviceInfoUpdate.Id);
+                if (ended) return;
+
+                DeviceInformation deviceInfo = FindDevice(deviceInfoUpdate.Id, devices);
                 if (deviceInfo != null)
                 {
-                    LogHelper.Ok("Device \"" + deviceInfo.Name + "\" removed, id=" + deviceInfo.Id);
+                    LogHelper.Log("Device \"" + (deviceInfo.Name == "" ? "?" : deviceInfo.Name) + "\" removed, id=" + deviceInfo.Id.Split("-").Last());
                     devices.Remove(deviceInfo);
                 }
             }
@@ -174,8 +208,14 @@ namespace GallonHelpers
 
             private void DeviceWatcher_Stopped(DeviceWatcher sender, object args)
             {
-                LogHelper.Warn("Discovery stopped, " + devices.Count + " device(s) found");
+                LogHelper.Ok("Discovery stopped, " + devices.Count + " device(s) found");
                 End();
+            }
+
+            public void Dispose()
+            {
+                Stop();
+                devices.Clear();
             }
         }
         
