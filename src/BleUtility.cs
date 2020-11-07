@@ -26,6 +26,161 @@ namespace GallonHelpers
         readonly static int E_ACCESSDENIED = unchecked((int)0x80070005);
         #endregion
 
+        #region discovery
+
+        public class Discovery
+        {
+            #region settings
+            // Additional properties we would like about the device.
+            // Property strings are documented here https://msdn.microsoft.com/en-us/library/windows/desktop/ff521659(v=vs.85).aspx
+            private string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected", "System.Devices.Aep.Bluetooth.Le.IsConnectable" };
+            // Showw paired and non-paired in a single query.
+            string allBLEDevices = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
+            #endregion
+
+            private DeviceWatcher deviceWatcher = null;
+            private List<DeviceInformation> devices = new List<DeviceInformation>();
+            private bool ended = true;
+
+            public Discovery()
+            {
+
+            }
+
+            /// <summary>
+            /// Starts discovery for BLE devices.
+            /// HasEnded() will return true once finished.
+            /// If you want to stop during the discovery,
+            /// you can call Stop().
+            /// 
+            /// Handles logging.
+            /// </summary>
+            public void Start()
+            {
+                if (deviceWatcher == null)
+                {
+                    deviceWatcher = DeviceInformation.CreateWatcher(allBLEDevices, requestedProperties, DeviceInformationKind.AssociationEndpoint);
+
+                    deviceWatcher.Added += DeviceWatcher_Added;
+                    deviceWatcher.Updated += DeviceWatcher_Updated;
+                    deviceWatcher.Removed += DeviceWatcher_Removed;
+                    deviceWatcher.EnumerationCompleted += DeviceWatcher_EnumerationCompleted;
+                    deviceWatcher.Stopped += DeviceWatcher_Stopped;
+                }
+
+                LogHelper.Ok("Discovery in progress...");
+                LogHelper.IncrementIndentLevel();
+
+                ended = false;
+                devices.Clear();
+                deviceWatcher.Start();
+            }
+
+            /// <summary>
+            /// Stops the discovery properly.
+            /// The devices are saved.
+            /// </summary>
+            public void Stop()
+            {
+                if (deviceWatcher != null)
+                {
+                    deviceWatcher.Stop();
+
+                    deviceWatcher.Added -= DeviceWatcher_Added;
+                    deviceWatcher.Updated -= DeviceWatcher_Updated;
+                    deviceWatcher.Removed -= DeviceWatcher_Removed;
+                    deviceWatcher.EnumerationCompleted -= DeviceWatcher_EnumerationCompleted;
+                    deviceWatcher.Stopped -= DeviceWatcher_Stopped;
+                    
+                    deviceWatcher = null;
+                }
+
+                End();
+            }
+
+            /// <summary>
+            /// You need to start the discovery first by using Start()
+            /// Then wait for it to finish using HasEnded()
+            /// Then you can get the devices
+            /// 
+            /// GetDevices() returns the devices found during the last
+            /// discovery. If you start a discovery, it clears the list.
+            /// 
+            /// </summary>
+            /// <returns>BLE devices found during the discovery</returns>
+            public List<DeviceInformation> GetDevices()
+            {
+                return devices;
+            }
+
+            public bool HasEnded()
+            {
+                return ended;
+            }
+
+            private void End()
+            {
+                ended = true;
+                LogHelper.DecrementIndentLevel();
+            }
+
+            private DeviceInformation FindDevice(string id)
+            {
+                foreach (DeviceInformation deviceInfo in devices)
+                {
+                    if (deviceInfo.Id == id)
+                    {
+                        return deviceInfo;
+                    }
+                }
+                return null;
+            }
+
+            private void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInfo)
+            {
+                if (FindDevice(deviceInfo.Id) == null)
+                {
+                    LogHelper.Ok("Device \"" + deviceInfo.Name + "\" added, id=" + deviceInfo.Id);
+                    devices.Add(deviceInfo);
+                }
+            }
+
+            private void DeviceWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
+            {
+                DeviceInformation deviceInfo = FindDevice(deviceInfoUpdate.Id);
+                if (deviceInfo != null)
+                {
+                    LogHelper.Ok("Device \"" + deviceInfo.Name + "\" updated, id=" + deviceInfo.Id);
+                    // we udpate the device with the new information
+                    deviceInfo.Update(deviceInfoUpdate);
+                }
+            }
+
+            private void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate deviceInfoUpdate)
+            {
+                DeviceInformation deviceInfo = FindDevice(deviceInfoUpdate.Id);
+                if (deviceInfo != null)
+                {
+                    LogHelper.Ok("Device \"" + deviceInfo.Name + "\" removed, id=" + deviceInfo.Id);
+                    devices.Remove(deviceInfo);
+                }
+            }
+
+            private void DeviceWatcher_EnumerationCompleted(DeviceWatcher sender, object args)
+            {
+                LogHelper.Ok("Discovery ended, " + devices.Count + " device(s) found");
+                End();
+            }
+
+            private void DeviceWatcher_Stopped(DeviceWatcher sender, object args)
+            {
+                LogHelper.Warn("Discovery stopped, " + devices.Count + " device(s) found");
+                End();
+            }
+        }
+        
+        #endregion
+
         #region connection
 
         /// <summary>
