@@ -89,13 +89,11 @@ namespace GallonHelpers
             if (overwrite)
             {
                 // Clear line
-                int currentLineCursor = Console.CursorTop;
-                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.SetCursorPosition(0, Console.CursorTop);
                 Console.Write(new string(' ', Console.WindowWidth));
-                Console.SetCursorPosition(0, currentLineCursor);
 
                 // Write over it
-                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.SetCursorPosition(0, Console.CursorTop);
                 Console.Write(prefix + msg);
             }
             else
@@ -177,6 +175,7 @@ namespace GallonHelpers
 
         public static int AskUserToChoose(String question, String[] choices)
         {
+            LogHelper.Log("");
             LogHelper.Question(question);
             LogHelper.IncrementIndentLevel();
             for (int i = 0; i < choices.Length; i++)
@@ -185,15 +184,45 @@ namespace GallonHelpers
             }
             LogHelper.DecrementIndentLevel();
 
-            LogHelper.Log("");
-            LogHelper.NewLine(false);
             int choice = -1;
             do
             {
+                LogHelper.NewLine(false);
                 LogHelper.Question("Choice: ");
                 LogHelper.Overwrite(true); // order important
             }
             while (!Int32.TryParse(Console.ReadLine(), out choice) || choice < 0 || choice >= choices.Length);
+
+            LogHelper.Overwrite(false);
+            LogHelper.NewLine(true);
+
+            return choice;
+        }
+
+        public static String AskUserForString(String question)
+        {
+            LogHelper.Log("");
+            LogHelper.NewLine(false);
+            LogHelper.Question(question);
+            LogHelper.Overwrite(true);
+            LogHelper.NewLine(true);
+            String str = Console.ReadLine();
+            LogHelper.Overwrite(false);
+            return str;
+        }
+
+        public static double AskUserForDouble(String question, double min, double max)
+        {
+            LogHelper.Log("");
+            LogHelper.Question(question);
+            double choice = min-1;
+            do
+            {
+                LogHelper.NewLine(false);
+                LogHelper.Question("Choice: ");
+                LogHelper.Overwrite(true); // order important
+            }
+            while (!Double.TryParse(Console.ReadLine(), out choice) || choice < min || choice >= max);
 
             LogHelper.Overwrite(false);
             LogHelper.NewLine(true);
