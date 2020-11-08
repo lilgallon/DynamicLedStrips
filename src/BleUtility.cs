@@ -208,7 +208,8 @@ namespace GallonHelpers
 
             private void DeviceWatcher_Stopped(DeviceWatcher sender, object args)
             {
-                LogHelper.Ok("Discovery stopped, " + devices.Count + " device(s) found");
+                if (!ended) // on dispose it will log that otherwise
+                    LogHelper.Ok("Discovery stopped, " + devices.Count + " device(s) found");
                 End();
             }
 
@@ -226,11 +227,10 @@ namespace GallonHelpers
         /// <summary>
         /// Tries to connect to the given device
         /// </summary>
-        /// <param name="id">Device id (ex: "be:89:d0:01:7b:9c")</param>
+        /// <param name="id">Device id (found during discovery)</param>
         /// <returns>BluetoothLEDevice: succed, null otherwise</returns>
         public static async Task<BluetoothLEDevice> Connect(String id)
         {
-            id = "BluetoothLE#BluetoothLE00:15:83:ed:e4:12-" + id;
             return await BluetoothLEDevice.FromIdAsync(id);
         }
 
@@ -275,21 +275,18 @@ namespace GallonHelpers
                     }
                     else
                     {
-                        LogHelper.ResetIndentLevel();
                         LogHelper.Error("Error accessing device");
                         return null;
                     }
                 } 
                 else
                 {
-                    LogHelper.ResetIndentLevel();
                     LogHelper.Error("Error accessing device: access not granted");
                     return null;
                 }
             }
             catch (Exception e)
             {
-                LogHelper.ResetIndentLevel();
                 LogHelper.Error("Restricted service. Can't read characteristics: " + e.Message);
                 return null;
             }
