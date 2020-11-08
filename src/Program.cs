@@ -497,13 +497,13 @@ namespace AudioBleLedsController
         static void Loop(GattCharacteristic characteristic)
         {
             SoundListener soundListener = new SoundListener();
-
             Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e) {
                 e.Cancel = true;
                 keepRunning = false;
             };
-
             LogHelper.Ok("Program running. Press CTRL+C to stop");
+
+            #region variables (prevents reallocation)
 
             // Rectangle in the middle of the screen
             Rectangle rect = new Rectangle(1920 / 4, 1080 / 4, 1920 / 4 * 2, 1080 / 4 * 2);
@@ -513,95 +513,104 @@ namespace AudioBleLedsController
             String brightness;
             String textToWrite;
 
-            // Smooth brightness variation
-            int current = -1;
-            int smoothness = 0;
-            bool dynamicSmoothing = false;
+            #endregion
 
-            // Sound type selector
-            bool sensitiveToBass = true; // false -> sensitive to sound level in general
+            #region configuration
+
+            bool sensitiveToBass = Configuration.audioSensibility == Configuration.AudioSensibility.BASS_LEVEL;
+            bool dynamicSmoothing = Configuration.smoothingMode == Configuration.SmoothingMode.DYNAMIC;
+            double smoothness = Configuration.smoothingValue;
+
+            #endregion
+
+            int current = -1; // Smooth brightness variation
+            int cpt = 0; // Used to know when to read the screen's pixels
             soundListener.ListenForBass(sensitiveToBass);
 
-            int cpt = 0;
             while (keepRunning)
             {
-                soundLevel = (int)((sensitiveToBass ? soundListener.GetBassLevel() : soundListener.GetSoundLevel()) * 100f); // Between 0.0f and 100.0f
-
-                if (current == -1) current = soundLevel;
-
-                if (dynamicSmoothing)
+                if (Configuration.audioSensibility != Configuration.AudioSensibility.NONE)
                 {
-                    current = (current + soundLevel) / 2;
-                }
-                else if (current < soundLevel && smoothness > 0)
-                {
-                    current = Math.Min(current + 100 / smoothness, soundLevel);
-                }
-                else if (smoothness > 0)
-                {
-                    current = Math.Max(current - 100 / smoothness, soundLevel);
-                }
-                else
-                {
-                    current = soundLevel;
-                }
+                    soundLevel = (int)((sensitiveToBass ? soundListener.GetBassLevel() : soundListener.GetSoundLevel()) * 100f); // Between 0.0f and 100.0f
 
+                    if (current == -1) current = soundLevel;
 
-                // Format: 7e 00 01 brightness 00 00 00 00 ef
-                // brightness: 0x00-0x64 (0-100)
-                // So we need to convert the soundLevel to hex so that 100.0f is 0x64 and 0.0f is 0x00
-                brightness = (current).ToString("X");
-                textToWrite = "7e0001" + brightness + "00000000ef";
-                _ = BleUtility.WriteHex(textToWrite, characteristic); // we don't want it to be blocking
-
-                // We don't want to analyze pixels as fast as we check for the sound level
-                cpt++;
-                if (cpt == 10)
-                {
-                    new Thread(() =>
+                    if (dynamicSmoothing)
                     {
-                        color = ScreenUtils.CalculateAverageScreenColorAt(rect);
+                        current = (current + soundLevel) / 2;
+                    }
+                    else if (current < soundLevel && smoothness > 0)
+                    {
+                        current = Math.Min((int)(current + 100 / smoothness), soundLevel);
+                    }
+                    else if (smoothness > 0)
+                    {
+                        current = Math.Max((int)(current - 100 / smoothness), soundLevel);
+                    }
+                    else
+                    {
+                        current = soundLevel;
+                    }
 
-                        if (color.GetBrightness() >= 0.85f)
+                    // Format: 7e 00 01 brightness 00 00 00 00 ef
+                    // brightness: 0x00-0x64 (0-100)
+                    // So we need to convert the soundLevel to hex so that 100.0f is 0x64 and 0.0f is 0x00
+                    brightness = (current).ToString("X");
+                    textToWrite = "7e0001" + brightness + "00000000ef";
+                    _ = BleUtility.WriteHex(textToWrite, characteristic); // we don't want it to be blocking
+                }
+
+                if (Configuration.colorSensibility != Configuration.ColorSensibility.NONE)
+                {
+                    // We don't want to analyze pixels as fast as we check for the sound level
+                    cpt++;
+                    if (cpt == 10)
+                    {
+                        new Thread(() =>
                         {
+                            color = ScreenUtils.CalculateAverageScreenColorAt(rect);
+
+                            if (color.GetBrightness() >= 0.85f)
+                            {
                             // white
                             colorCode = "86";
-                        }
-                        else if (color.GetHue() < 25 || color.GetHue() >= 330)
-                        {
+                            }
+                            else if (color.GetHue() < 25 || color.GetHue() >= 330)
+                            {
                             // red
                             colorCode = "80";
-                        }
-                        else if (color.GetHue() >= 25 && color.GetHue() < 65)
-                        {
+                            }
+                            else if (color.GetHue() >= 25 && color.GetHue() < 65)
+                            {
                             // yellow
                             colorCode = "84";
-                        }
-                        else if (color.GetHue() >= 65 && color.GetHue() < 180)
-                        {
+                            }
+                            else if (color.GetHue() >= 65 && color.GetHue() < 180)
+                            {
                             // green
                             colorCode = "82";
-                        }
-                        else if (color.GetHue() >= 180 && color.GetHue() < 200)
-                        {
+                            }
+                            else if (color.GetHue() >= 180 && color.GetHue() < 200)
+                            {
                             // cyan
                             colorCode = "83";
-                        }
-                        else if (color.GetHue() >= 200 && color.GetHue() < 250)
-                        {
+                            }
+                            else if (color.GetHue() >= 200 && color.GetHue() < 250)
+                            {
                             // blue
                             colorCode = "81";
-                        }
-                        else if (color.GetHue() >= 250 && color.GetHue() < 330)
-                        {
+                            }
+                            else if (color.GetHue() >= 250 && color.GetHue() < 330)
+                            {
                             // magenta
                             colorCode = "85";
-                        }
+                            }
 
-                        _ = BleUtility.WriteHex("7e0003" + colorCode + "03000000ef", characteristic);
-                    }).Start();
+                            _ = BleUtility.WriteHex("7e0003" + colorCode + "03000000ef", characteristic);
+                        }).Start();
 
-                    cpt = 0;
+                        cpt = 0;
+                    }
                 }
 
                 Thread.Sleep(50);

@@ -22,11 +22,11 @@ ______  _      _____
   ./ Area used by color picker customizable (WIP)
 
 /// Smart
-  ./ Finds bluetooth controllers automatically (WIP)
+  ./ Finds bluetooth controllers automatically
   ./ It uses bluetooth to comunicate with LED controllers, but you can still use your game controller in the same time!
 
 /// Customizable 
-  ./ Toggle features on and off (brightness / color) (WIP)
+  ./ Toggle features on and off (brightness / color)
   ./ Audio sensibility customizable (WIP)
   
 /// Works with most of the controllers
@@ -45,13 +45,13 @@ ______  _      _____
 - [x] Smooth brightness variation
 - [x] Option for brightness to change according to the bass instead of the audio level
 - [ ] Refresh rate customizable
-- [ ] Ask for the user to select the device, the service, and the characteristic
-- [ ] Allow the user to change the sound level sensibility
+- [x] Ask for the user to select the device, the service, and the characteristic
+- [x] Allow the user to change the sound level sensibility
 - [ ] Allow the user to map the colors by himself (the same device may have different color mappings)
-- [ ] Allow the user to save that by giving them command line arguments to run the program - V 1.0.0 goal
+- [x] Allow the user to save that by giving them command line arguments to run the program - V 1.0.0 goal
 - [ ] Allow the user to start this app in the foreground on windows startup
 - [ ] Cool UWP UI
-- [ ] Automatic configuration (make it work on any Bluetooth LE LED controller) - yes, it's possible
+- [x] Automatic configuration
 
 ## For the devs:
 
