@@ -88,13 +88,11 @@ namespace GallonHelpers
 
             if (overwrite)
             {
-                // Clear line
-                Console.SetCursorPosition(0, Console.CursorTop);
-                Console.Write(new string(' ', Console.WindowWidth));
+                Console.SetCursorPosition(0, Console.CursorTop); // put the cursor at the beginning
+                Console.Write(new string(' ', Console.BufferWidth)); // clear the line
 
-                // Write over it
-                Console.SetCursorPosition(0, Console.CursorTop);
-                Console.Write(prefix + msg);
+                Console.SetCursorPosition(0, Console.CursorTop); // put the cursor at the beginning
+                Console.Write(prefix + msg); // write the message
             }
             else
             {
