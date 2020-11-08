@@ -40,18 +40,22 @@ ______  _      _____
 
 ## Goals:
 
+**V0.1.0:**
 - [x] Change intensity of the light according to the sound played by the default output device
 - [x] Change the LEDs color according to the screen main color
 - [x] Smooth brightness variation
 - [x] Option for brightness to change according to the bass instead of the audio level
-- [ ] Refresh rate customizable
 - [x] Ask for the user to select the device, the service, and the characteristic
 - [x] Allow the user to change the sound level sensibility
-- [ ] Allow the user to map the colors by himself (the same device may have different color mappings)
+- [x] Automatic configuration
 - [x] Allow the user to save that by giving them command line arguments to run the program - V 1.0.0 goal
+- [ ] Refresh rate customizable
+- [ ] Allow the user to map the colors by himself (the same device may have different color mappings)
+- [ ] Allow the user to change the settings while the program is running
+
+**Future:**
 - [ ] Allow the user to start this app in the foreground on windows startup
 - [ ] Cool UWP UI
-- [x] Automatic configuration
 
 ## For the devs:
 
