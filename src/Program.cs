@@ -551,6 +551,7 @@ namespace AudioBleLedsController
 
             bool sensitiveToBass = Configuration.audioSensibility == Configuration.AudioSensibility.BASS_LEVEL;
             bool dynamicSmoothing = Configuration.smoothingMode == Configuration.SmoothingMode.DYNAMIC;
+            bool valueSmoothing = Configuration.smoothingMode == Configuration.SmoothingMode.VALUE;
             double smoothness = Configuration.smoothingValue;
 
             #endregion
@@ -571,7 +572,7 @@ namespace AudioBleLedsController
                     {
                         current = (current + soundLevel) / 2;
                     }
-                    else if (current < soundLevel && smoothness > 0)
+                    else if (current < soundLevel && valueSmoothing && smoothness > 0)
                     {
                         current = Math.Min((int)(current + 100 / smoothness), soundLevel);
                     }
