@@ -35,7 +35,7 @@ namespace AudioBleLedsController
                 smoothingValue + ";" +
                 (int) audioSensibility + ";" +
                 (int) colorSensibility + ";" +
-                device;
+                device + ";"; // last semi colon important
         }
 
         /// <summary>
@@ -283,6 +283,11 @@ namespace AudioBleLedsController
 
                 Configuration.device = finder == 0 ? await AutomaticScan() : AskForEndPoint();
 
+                if (Configuration.device.deviceId == null)
+                {
+                    return false;
+                }
+
                 int settings = LogHelper.AskUserToChoose(
                     "Settings: ",
                     new string[] { "Default (recommended settings)", "Manual (let me choose)" }
@@ -349,7 +354,7 @@ namespace AudioBleLedsController
         /// through a CompatibleEndPoint object. It contains the id, service and
         /// characteristic name.
         /// </summary>
-        /// <returns>The complete device id (or -1 if none were selected)</returns>
+        /// <returns>The complete device id (or CompatibleEndPoint with all fields set as null if none were selected)</returns>
         static async Task<CompatibleEndPoint> AutomaticScan()
         {
             BleUtility.Discovery bleDiscovery = new BleUtility.Discovery();
@@ -474,20 +479,31 @@ namespace AudioBleLedsController
             LogHelper.DecrementIndentLevel();
             LogHelper.Ok("Finished analyzing devices");
 
-            LogHelper.Ok("Compatible device(s):");
-            LogHelper.IncrementIndentLevel();
-            string[] ids = new string[compatibleEndPoints.Count];
-            for (int i = 0; i < compatibleEndPoints.Count; i++)
+            if (compatibleEndPoints.Count == 0)
             {
-                CompatibleEndPoint compatibleEndPoint = compatibleEndPoints.ElementAt(i);
-                LogHelper.Ok("name = '" + compatibleEndPoint.deviceName + "' id = '" + compatibleEndPoint.deviceId + "'");
-                ids[i] = compatibleEndPoint.deviceId + (compatibleEndPoint.deviceName != "" ? (" " + compatibleEndPoint.deviceName) : "");
+                LogHelper.Error("No compatible device found");
+                LogHelper.Error("Make sure that you're not already connected to it");
+                return new CompatibleEndPoint(null, null, null, null);
             }
-            LogHelper.DecrementIndentLevel();
+            else
+            {
+                LogHelper.Ok("Compatible device(s):");
+                LogHelper.IncrementIndentLevel();
+                string[] ids = new string[compatibleEndPoints.Count];
+                for (int i = 0; i < compatibleEndPoints.Count; i++)
+                {
+                    CompatibleEndPoint compatibleEndPoint = compatibleEndPoints.ElementAt(i);
+                    LogHelper.Ok("name = '" + compatibleEndPoint.deviceName + "' id = '" + compatibleEndPoint.deviceId + "'");
+                    ids[i] = compatibleEndPoint.deviceId + (compatibleEndPoint.deviceName != "" ? (" " + compatibleEndPoint.deviceName) : "");
+                }
+                LogHelper.DecrementIndentLevel();
 
-            int choice = LogHelper.AskUserToChoose("Choose the device to use: ", ids);
-            bleDiscovery.Dispose();
-            return compatibleEndPoints.ElementAt(choice);
+                int choice = LogHelper.AskUserToChoose("Choose the device to use: ", ids);
+                bleDiscovery.Dispose();
+                return compatibleEndPoints.ElementAt(choice);
+            }
+
+            
         }
 
         /// <summary>
