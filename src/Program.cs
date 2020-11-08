@@ -24,6 +24,11 @@ namespace AudioBleLedsController
         public static ColorSensibility colorSensibility;
         public static CompatibleEndPoint device;
 
+        public static String GetArgumentDetails()
+        {
+            return "smoothingMode;smoothingValue;audioSensibility;colorSensibility;" + device.GetArgumentDetails();
+        }
+
         /// <summary>
         /// Creates a string containing all the arguments needed to run
         /// the program with the current configuration
@@ -31,10 +36,10 @@ namespace AudioBleLedsController
         /// <returns></returns>
         public static String ToArgument()
         {
-            return (int) smoothingMode + ";" +
+            return smoothingMode + ";" +
                 smoothingValue + ";" +
-                (int) audioSensibility + ";" +
-                (int) colorSensibility + ";" +
+                audioSensibility + ";" +
+                colorSensibility + ";" +
                 device + ";"; // last semi colon important
         }
 
@@ -48,17 +53,19 @@ namespace AudioBleLedsController
         {
             try
             {
+                LogHelper.Ok(argument);
                 String[] arguments = argument.Split(";");
-                smoothingMode    = (SmoothingMode) Int32.Parse(arguments[0]);
-                smoothingValue   = Double.Parse(arguments[1]);
-                audioSensibility = (AudioSensibility) Int32.Parse(arguments[2]);
-                colorSensibility = (ColorSensibility) Int32.Parse(arguments[3]);
-                device           = new CompatibleEndPoint(arguments[4], arguments[5], arguments[6], arguments[7]);
+                Enum.TryParse(arguments[0], out SmoothingMode smoothingMode);
+                smoothingValue = Double.Parse(arguments[1]);
+                Enum.TryParse(arguments[2], out AudioSensibility audioSensibility);
+                Enum.TryParse(arguments[3], out ColorSensibility colorSensibility);
+                device = new CompatibleEndPoint(arguments[4], arguments[5], arguments[6], arguments[7]);
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogHelper.Error("Error: " + e.Message);
                 return false;
             }
         }
@@ -78,7 +85,13 @@ namespace AudioBleLedsController
             deviceServiceName = service;
             deviceCharacteristicName = characteristic;
         }
-        
+
+        public String GetArgumentDetails()
+        {
+            return "deviceId;deviceName;deviceServiceName;deviceCharacteristicName;";
+        }
+
+
         public override String ToString()
         {
             return deviceId + ";" + deviceName + ";" + deviceServiceName + ";" + deviceCharacteristicName;
@@ -201,11 +214,14 @@ namespace AudioBleLedsController
                 #endregion
 
                 #region show config
+
                 LogHelper.PrintTitle("Save your config");
                 LogHelper.Ok("Using configuration:");
-                LogHelper.Log(Configuration.ToArgument());
+                LogHelper.Log(Configuration.GetArgumentDetails());
+                LogHelper.Log("\"" + Configuration.ToArgument() + "\"");
                 LogHelper.Ok("Copy the line below, and run the program with this argument to [...]");
                 LogHelper.Ok("[...] start the program automatically with the current configuration");
+
                 #endregion
 
                 #region communication
