@@ -31,10 +31,10 @@ namespace AudioBleLedsController
         /// <returns></returns>
         public static String ToArgument()
         {
-            return smoothingMode + ";" +
+            return (int) smoothingMode + ";" +
                 smoothingValue + ";" +
-                audioSensibility + ";" +
-                colorSensibility + ";" +
+                (int) audioSensibility + ";" +
+                (int) colorSensibility + ";" +
                 device;
         }
 
@@ -109,17 +109,13 @@ namespace AudioBleLedsController
             LogHelper.PrintHeader();
 
             LogHelper.PrintTitle("Configuration");
-            if (!await Configure(args))
-            
+            bool configSucceed = await Configure(args);
+            if (!configSucceed)
             {
                 LogHelper.Error("Something went wrong during configuration");
             }
             else
             {
-                LogHelper.Ok("Using configuration:");
-                LogHelper.Log(Configuration.ToArgument());
-                LogHelper.Ok("Copy the line below, and run the program with this argument to [...]");
-                LogHelper.Ok("[...] start the program automatically with the current configuration");
 
                 #region connection
 
@@ -139,7 +135,7 @@ namespace AudioBleLedsController
                 if (device != null)
                 {
                     LogHelper.PrintTitle("Services");
-                    LogHelper.Pending("Looking for service " + Configuration.device.deviceName + "...");
+                    LogHelper.Pending("Looking for service " + Configuration.device.deviceServiceName + "...");
 
                     IReadOnlyList<GattDeviceService> services = await BleUtility.GetServices(device);
 
@@ -150,7 +146,7 @@ namespace AudioBleLedsController
                         {
                             if (DisplayHelpers.GetServiceName(service) == Configuration.device.deviceServiceName)
                             {
-                                LogHelper.Ok("Found service");
+                                LogHelper.Ok("Found service " + Configuration.device.deviceServiceName);
                                 targettedService = service;
                                 break;
                             }
@@ -167,8 +163,6 @@ namespace AudioBleLedsController
                     }
                 }
 
-                
-
                 #endregion
 
                 #region caracteristics
@@ -179,21 +173,39 @@ namespace AudioBleLedsController
                     LogHelper.PrintTitle("Caracteristics");
                     LogHelper.Pending("Looking for characteristic " + Configuration.device.deviceCharacteristicName + "...");
                     IReadOnlyList<GattCharacteristic> characteristics = await BleUtility.GetCharacteristics(targettedService);
-                    foreach (var charact in characteristics)
+                    
+                    if (characteristics == null)
                     {
-                        if (DisplayHelpers.GetCharacteristicName(charact) == Configuration.device.deviceCharacteristicName)
+                        LogHelper.Error("Could not find characteristics of " + Configuration.device.deviceName);
+                    }
+                    else
+                    {
+                        foreach (var charact in characteristics)
                         {
-                            LogHelper.Ok("Found characteristic");
-                            characteristic = charact;
+                            if (DisplayHelpers.GetCharacteristicName(charact) == Configuration.device.deviceCharacteristicName)
+                            {
+                                LogHelper.Ok("Found characteristic");
+                                characteristic = charact;
+                            }
+                        }
+
+                        if (characteristic == null)
+                        {
+                            LogHelper.Error("Could not find characteristic " + Configuration.device.deviceCharacteristicName);
                         }
                     }
 
-                    if (characteristic == null)
-                    {
-                        LogHelper.Error("Could not find characteristic " + Configuration.device.deviceCharacteristicName);
-                    }
+                    
                 }
 
+                #endregion
+
+                #region show config
+                LogHelper.PrintTitle("Save your config");
+                LogHelper.Ok("Using configuration:");
+                LogHelper.Log(Configuration.ToArgument());
+                LogHelper.Ok("Copy the line below, and run the program with this argument to [...]");
+                LogHelper.Ok("[...] start the program automatically with the current configuration");
                 #endregion
 
                 #region communication
@@ -409,12 +421,14 @@ namespace AudioBleLedsController
                     {
                         LogHelper.DecrementIndentLevel();
                         LogHelper.Warn("Failed to retrieve characteristics");
+                        service.Dispose();
                         continue;
                     }
                     else if (characteristics.Count == 0)
                     {
                         LogHelper.DecrementIndentLevel();
                         LogHelper.Warn("No characteristics found");
+                        service.Dispose();
                         continue;
                     }
                     LogHelper.Ok(characteristics.Count + " characteristic(s) found");
@@ -428,11 +442,12 @@ namespace AudioBleLedsController
 
                         if (BleUtility.IsWriteableCharateristic(characteristic))
                         {
-                            CompatibleEndPoint endPoint;
-                            endPoint.deviceId = device.Id;
-                            endPoint.deviceName = device.Name;
-                            endPoint.deviceServiceName = DisplayHelpers.GetServiceName(service);
-                            endPoint.deviceCharacteristicName = DisplayHelpers.GetCharacteristicName(characteristic);
+                            CompatibleEndPoint endPoint = new CompatibleEndPoint(
+                                device.Id,
+                                device.Name,
+                                DisplayHelpers.GetServiceName(service),
+                                DisplayHelpers.GetCharacteristicName(characteristic)
+                            );
 
                             compatibleCpt++;
                             compatibleEndPoints.Add(endPoint);
@@ -443,6 +458,8 @@ namespace AudioBleLedsController
                             LogHelper.Warn("Not compatible");
                         }
                     }
+
+                    service.Dispose();
                     LogHelper.DecrementIndentLevel();
                     LogHelper.Ok(compatibleCpt + " compatible endpoint(s) found");
                     LogHelper.DecrementIndentLevel();
@@ -460,12 +477,11 @@ namespace AudioBleLedsController
             LogHelper.Ok("Compatible device(s):");
             LogHelper.IncrementIndentLevel();
             string[] ids = new string[compatibleEndPoints.Count];
-            foreach (CompatibleEndPoint compatibleEndPoint in compatibleEndPoints)
+            for (int i = 0; i < compatibleEndPoints.Count; i++)
             {
+                CompatibleEndPoint compatibleEndPoint = compatibleEndPoints.ElementAt(i);
                 LogHelper.Ok("name = '" + compatibleEndPoint.deviceName + "' id = '" + compatibleEndPoint.deviceId + "'");
-                ids.Append(
-                    compatibleEndPoint.deviceId + (compatibleEndPoint.deviceName != "" ? (" " + compatibleEndPoint.deviceName) : "")
-                );
+                ids[i] = compatibleEndPoint.deviceId + (compatibleEndPoint.deviceName != "" ? (" " + compatibleEndPoint.deviceName) : "");
             }
             LogHelper.DecrementIndentLevel();
 
