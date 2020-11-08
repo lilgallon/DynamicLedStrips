@@ -116,6 +116,10 @@ namespace AudioBleLedsController
             }
             else
             {
+                LogHelper.Ok("Using configuration:");
+                LogHelper.Log(Configuration.ToArgument());
+                LogHelper.Ok("Copy the line below, and run the program with this argument to [...]");
+                LogHelper.Ok("[...] start the program automatically with the current configuration");
 
                 #region connection
 
@@ -452,8 +456,6 @@ namespace AudioBleLedsController
             }
             LogHelper.DecrementIndentLevel();
             LogHelper.Ok("Finished analyzing devices");
-
-            
 
             LogHelper.Ok("Compatible device(s):");
             LogHelper.IncrementIndentLevel();
