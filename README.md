@@ -1,3 +1,5 @@
+![logo](https://github.com/N3ROO/DynamicLedStrips/raw/main/.github/bls_icon.png)
+
 ```txt
 ______  _      _____
 |  _  \| |    /  ___|
