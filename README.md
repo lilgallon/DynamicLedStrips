@@ -9,7 +9,9 @@ ______  _      _____
 /***
   LED strips are alive! The color and the brightness change according to the activity of your computer!
 
-  Improves your immersion in the game you're playing. Works great with the new Assassin's Creed Valhalla. No doubt that it will be awesome with Cyberpunk 2077 as well! Works with movies, yutube videos and anything your computer is streaming.
+  Improves your immersion in the game you're playing. Works great with the new Assassin's Creed Valhalla.
+  No doubt that it will be awesome with Cyberpunk 2077 as well! Works with movies, yutube videos and
+  anything your computer is streaming.
 **/
 
 /// Lightweight
@@ -18,7 +20,8 @@ ______  _      _____
 
 /// Smart
   ./ Finds compatible bluetooth LE controllers automatically
-  ./ It uses bluetooth to comunicate with LED controllers, but you can still use your game controller at the same time
+  ./ It uses bluetooth to comunicate with LED controllers, but you can still use your game controller at
+	 the same time
   ./ It does not react to the sound level directly, but rather to the bass level.
 
 /// Customizable
