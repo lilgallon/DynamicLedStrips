@@ -7,55 +7,41 @@ ______  _      _____
 |___/  \_____/\____/   MIT License, (c) Lilian Gallon 2020
 
 /***
-  LED strips are alive! The color and the brightness change according to the activity of
-    your computer!
+  LED strips are alive! The color and the brightness change according to the activity of your computer!
 
-  Playing Doom? The LEDs will flash and turn red when killing monsters.
-  Watching a movie? The LEDs color will change according to the scene you're looking at and
-    will flash according to the audio.
+  Improves your immersion in the game you're playing. Works great with the new Assassin's Creed Valhalla. No doubt that it will be awesome with Cyberpunk 2077 as well! Works with movies, yutube videos and anything your computer is streaming.
 **/
 
-/// Lightweight 
+/// Lightweight
   ./ Low processor usage
   ./ Low ram usage (~=30 MB)
-  ./ Refresh rate customizable (WIP)
-  ./ Area used by color picker customizable (WIP)
 
 /// Smart
-  ./ Finds bluetooth controllers automatically
-  ./ It uses bluetooth to comunicate with LED controllers, but you can still use your game controller in the same time!
+  ./ Finds compatible bluetooth LE controllers automatically
+  ./ It uses bluetooth to comunicate with LED controllers, but you can still use your game controller at the same time
+  ./ It does not react to the sound level directly, but rather to the bass level.
 
-/// Customizable 
+/// Customizable
   ./ Toggle features on and off (brightness / color)
-  ./ Audio sensibility customizable (WIP)
-  
+
 /// Works with most of the controllers
   ./ Supports "LED BLE" controllers (ELK_BLEDOM)
 
 /// Cross compatible
   ./ Windows 10
-  ./ MacOS
-  ./ Linux
+  ./ MacOS (you need to build it yourself)
+  ./ Linux (you need to build it yourself)
 ```
 
-## Goals:
+## How to use it
 
-**V0.1.0:**
-- [x] Change intensity of the light according to the sound played by the default output device
-- [x] Change the LEDs color according to the screen main color
-- [x] Smooth brightness variation
-- [x] Option for brightness to change according to the bass instead of the audio level
-- [x] Ask for the user to select the device, the service, and the characteristic
-- [x] Allow the user to change the sound level sensibility
-- [x] Automatic configuration
-- [x] Allow the user to save that by giving them command line arguments to run the program - V 1.0.0 goal
-- [ ] Refresh rate customizable
-- [ ] Allow the user to map the colors by himself (the same device may have different color mappings)
-- [ ] Allow the user to change the settings while the program is running
+Download the .exe. Execute it, then follow the instructions. First you may want to do an automatic scan to know which device to use. Then, you will be given an argument (a;b;c;d;e...) to run the program with the same settings. You can create a `.bat` file with that argument. It will look like this `./ble.exe a;b;c;d;..;`. (With a, b, c and so on being the settings). You will be given instructions while running the program anyway.
 
-**Future:**
-- [ ] Allow the user to start this app in the foreground on windows startup
-- [ ] Cool UWP UI
+The v1.0.0 version (if it ever gets released) will be a software with a user-friendly interface. For now, you need to act like a hacker.. ;)
+
+**Disclamer**
+
+If the color variable is not set to NONE, you may get banned by intrusive anti-cheats (like Riot Vanguard) because it will read the main screen's pixels. I did not test it though (it may be safe). The program acts like it's taking screenshots. Works great for Survival Games. Rocket League is safe as well. If you get banned, don't blame me! Better be safe than sorry!
 
 ## For the devs:
 
@@ -85,6 +71,7 @@ If you have a different controller, nothing changes expect the thing that you wi
 
 **This is not in the repo linked above. It was reverse engineered by me (so it may be different for you)**
 
+My controller:
 - 7e0003**80**03000000ef red
 - 7e0003**81**03000000ef blue
 - 7e0003**82**03000000ef green
