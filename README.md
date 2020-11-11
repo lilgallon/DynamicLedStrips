@@ -35,7 +35,7 @@ ______  _      _____
 
 ## How to use it
 
-Download the .exe. Execute it, then follow the instructions. First you may want to do an automatic scan to know which device to use. Then, you will be given an argument (a;b;c;d;e...) to run the program with the same settings. You can create a `.bat` file with that argument. It will look like this `./ble.exe a;b;c;d;..;`. (With a, b, c and so on being the settings). You will be given instructions while running the program anyway.
+Download the .zip file and extract it anywhere. Execute it (DynamicLedStrips.exe), then follow the instructions. First you may want to do an automatic scan to know which device to use. Then, you will be given an argument (a;b;c;d;e...) to run the program with the same settings. You can create a `.bat` file with that argument. It will look like this `./ble.exe a;b;c;d;..;`. (With a, b, c and so on being the settings). You will be given instructions while running the program anyway.
 
 The v1.0.0 version (if it ever gets released) will be a software with a user-friendly interface. For now, you need to act like a hacker.. ;)
 
