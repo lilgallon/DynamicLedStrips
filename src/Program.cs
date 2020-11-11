@@ -55,10 +55,10 @@ namespace AudioBleLedsController
             {
                 LogHelper.Ok(argument);
                 String[] arguments = argument.Split(";");
-                Enum.TryParse(arguments[0], out SmoothingMode smoothingMode);
+                if(!Enum.TryParse(arguments[0], out Configuration.smoothingMode)) return false;
                 smoothingValue = Double.Parse(arguments[1]);
-                Enum.TryParse(arguments[2], out AudioSensibility audioSensibility);
-                Enum.TryParse(arguments[3], out ColorSensibility colorSensibility);
+                if (!Enum.TryParse(arguments[2], out Configuration.audioSensibility)) return false;
+                if (!Enum.TryParse(arguments[3], out Configuration.colorSensibility)) return false;
                 device = new CompatibleEndPoint(arguments[4], arguments[5], arguments[6], arguments[7]);
 
                 return true;
@@ -275,7 +275,7 @@ namespace AudioBleLedsController
                     LogHelper.Pending("Reading argument given");
                     if (Configuration.LoadArgument(args[0]))
                     {
-                        LogHelper.Ok("Loaded argument"); 
+                        LogHelper.Ok("Loaded argument");
                         return true;
                     }
                     else
