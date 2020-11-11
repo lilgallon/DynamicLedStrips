@@ -42,6 +42,8 @@ Download the .zip file and extract it anywhere. Execute it (DynamicLedStrips.exe
 
 The v1.0.0 version (if it ever gets released) will be a software with a user-friendly interface. For now, you need to act like a hacker.. ;)
 
+If you are a developper, you can even create your own launcher around it using command line arguments.
+
 **Disclamer**
 
 If the color variable is not set to NONE, you may get banned by intrusive anti-cheats (like Riot Vanguard) because it will read the main screen's pixels. I did not test it though (it may be safe). The program acts like it's taking screenshots. Works great for Survival Games. Rocket League is safe as well. If you get banned, don't blame me! Better be safe than sorry!
